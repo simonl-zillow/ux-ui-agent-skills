@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enhanced+ List Card — Dynamic Content System | Zillow Rentals</title>
+<style>
+  :root {
+    --zillow-blue: #006AFF;
+    --zillow-blue-light: #e8f1ff;
+    --green-price: #137333;
+    --green-bg: #e6f4ea;
+    --surface: #ffffff;
+    --surface-page: #f5f6f7;
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --text-tertiary: #6b7280;
+    --border-default: #e5e7eb;
+    --border-strong: #d1d5db;
+    --ann-a: #006AFF;
+    --ann-b: #7c3aed;
+    --ann-c: #dc2626;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --shadow-card: 0 1px 3px rgba(0,0,0,.1), 0 1px 2px -1px rgba(0,0,0,.1);
+    --shadow-hover: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -2px rgba(0,0,0,.1);
+    --radius: 10px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:var(--font); background:var(--surface-page); color:var(--text-primary); line-height:1.5; -webkit-font-smoothing:antialiased; }
+
+  /* ── Header ── */
+  .hdr { background:var(--surface); border-bottom:1px solid var(--border-default); padding:20px 32px; display:flex; align-items:center; gap:16px; position:sticky; top:0; z-index:100; }
+  .hdr svg { flex-shrink:0; }
+  .hdr h1 { font-size:18px; font-weight:600; }
+  .hdr .sub { font-size:13px; color:var(--text-tertiary); font-weight:400; }
+  .hdr-r { margin-left:auto; display:flex; align-items:center; gap:12px; }
+  .vbadge { font-size:11px; font-weight:600; padding:3px 8px; border-radius:4px; background:var(--zillow-blue-light); color:var(--zillow-blue); letter-spacing:.02em; text-transform:uppercase; }
+
+  /* ── Card type tabs ── */
+  .card-tabs { display:flex; justify-content:center; gap:4px; margin:32px auto 0; background:var(--surface); border:1px solid var(--border-default); border-radius:10px; padding:4px; width:fit-content; }
+  .card-tab { padding:8px 20px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; color:var(--text-secondary); transition:all .15s; user-select:none; border:none; background:none; }
+  .card-tab:hover { background:#f3f4f6; }
+  .card-tab.active { background:var(--zillow-blue); color:#fff; }
+  .card-tab .tab-sub { font-size:11px; font-weight:400; opacity:.7; display:block; margin-top:1px; }
+
+  /* ── Main layout ── */
+  .main { display:grid; grid-template-columns:1fr auto 1fr; gap:0; max-width:1440px; margin:24px auto 0; padding:0 32px 40px; align-items:start; }
+
+  /* ── Left annotations ── */
+  .left { display:flex; flex-direction:column; gap:20px; padding-right:24px; }
+  .ann { position:relative; border-radius:8px; padding:14px 16px; font-size:12px; line-height:1.5; border:1px solid; background:var(--surface); }
+  .ann::after { content:''; position:absolute; right:-12px; top:50%; transform:translateY(-50%); width:12px; height:1px; }
+  .ann .lbl { font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; display:flex; align-items:center; gap:6px; }
+  .ann .lbl .dot { width:8px; height:8px; border-radius:2px; display:inline-block; flex-shrink:0; }
+  .ann p { color:var(--text-secondary); }
+  .ann-a { border-color:rgba(0,106,255,.25); }
+  .ann-a .lbl { color:var(--ann-a); }
+  .ann-a .dot { background:var(--ann-a); }
+  .ann-a::after { background:var(--ann-a); }
+  .ann-b { border-color:rgba(124,58,237,.25); }
+  .ann-b .lbl { color:var(--ann-b); }
+  .ann-b .dot { background:var(--ann-b); }
+  .ann-b::after { background:var(--ann-b); }
+  .ann-c { border-color:rgba(220,38,38,.25); }
+  .ann-c .lbl { color:var(--ann-c); }
+  .ann-c .dot { background:var(--ann-c); }
+  .ann-c::after { background:var(--ann-c); }
+
+  /* ── Diff callout ── */
+  .diff-table { width:100%; border-collapse:collapse; margin-top:8px; font-size:11px; }
+  .diff-table th { text-align:left; font-weight:600; color:var(--text-tertiary); padding:4px 8px; border-bottom:1px solid var(--border-default); font-size:10px; text-transform:uppercase; letter-spacing:.04em; }
+  .diff-table td { padding:4px 8px; color:var(--text-secondary); border-bottom:1px solid #f3f4f6; }
+  .diff-table .hl { background:rgba(0,106,255,.04); }
+
+  /* ── Cards ── */
+  .cards-wrap { display:flex; gap:24px; flex-shrink:0; }
+  .card-col { width:340px; }
+  .card-col-label { text-align:center; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px; padding:4px 12px; border-radius:6px; display:inline-block; }
+  .card-col-header { text-align:center; margin-bottom:10px; }
+  .label-lt { background:#f3f4f6; color:var(--text-secondary); }
+  .label-mu { background:var(--zillow-blue-light); color:var(--zillow-blue); }
+
+  .card { background:var(--surface); border-radius:var(--radius); box-shadow:var(--shadow-card); overflow:hidden; cursor:pointer; transition:box-shadow .2s; position:relative; }
+  .card:hover { box-shadow:var(--shadow-hover); }
+
+  /* Zone highlights */
+  .zh { position:relative; }
+  .zh::before { content:''; position:absolute; inset:-1px; border:2px dashed transparent; border-radius:4px; pointer-events:none; opacity:0; transition:opacity .2s; z-index:5; }
+  .zh:hover::before, .zh.on::before { opacity:1; }
+  .zm::before { border-color:var(--ann-a); }
+  .zc::before { border-color:var(--ann-b); }
+  .zp::before { border-color:var(--ann-c); }
+
+  /* Media zone — 2:1 ratio */
+  .card-media { position:relative; width:100%; aspect-ratio:2/1; background:linear-gradient(135deg,#c4c8ce,#a8adb5); overflow:hidden; }
+  .card-media.interior { background:linear-gradient(135deg,#d4c8b8,#bfb3a3); }
+  .dots { position:absolute; bottom:8px; left:50%; transform:translateX(-50%); display:flex; gap:4px; }
+  .dots span { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,.5); }
+  .dots span:first-child { background:#fff; }
+  .badges { position:absolute; top:8px; left:8px; display:flex; gap:5px; flex-wrap:wrap; }
+  .bdg { font-size:11px; font-weight:600; padding:3px 8px; border-radius:4px; line-height:1.3; }
+  .bdg-dark { background:#111827; color:#fff; }
+  .bdg-light { background:rgba(255,255,255,.92); color:var(--text-primary); backdrop-filter:blur(4px); }
+  .save-btn { position:absolute; top:8px; right:8px; width:32px; height:32px; background:rgba(255,255,255,.9); border-radius:50%; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
+  .more-btn { position:absolute; top:8px; right:48px; width:32px; height:32px; background:rgba(255,255,255,.9); border-radius:50%; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
+  .more-dots { display:flex; gap:2px; }
+  .more-dots span { width:4px; height:4px; border-radius:50%; background:#111827; }
+
+  /* Core data */
+  .cbody { padding:12px 14px 0; }
+  .price-row { display:flex; align-items:baseline; gap:8px; margin-bottom:2px; }
+  .price { font-size:20px; font-weight:700; letter-spacing:-.01em; }
+  .price-sfx { font-size:14px; font-weight:400; color:var(--text-secondary); }
+  .inc-fees { font-size:12px; color:var(--zillow-blue); text-decoration:underline; text-underline-offset:2px; cursor:pointer; }
+  .price-drop { display:inline-flex; align-items:center; gap:3px; font-size:11px; font-weight:600; color:var(--green-price); background:var(--green-bg); padding:2px 6px; border-radius:3px; margin-left:auto; }
+  .drow { font-size:14px; margin:4px 0; }
+  .drow strong { font-weight:700; }
+  .drow .sep { color:var(--text-tertiary); margin:0 2px; }
+  .addr { font-size:13px; color:var(--text-secondary); margin:2px 0 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+  /* Personalization row */
+  .prow { margin:10px 0 0; padding:8px 0; border-top:1px solid var(--border-default); position:relative; min-height:34px; transition:all .25s; }
+  .prow.hl { background:rgba(220,38,38,.03); margin-left:-14px; margin-right:-14px; padding-left:14px; padding-right:14px; border-top:1px dashed rgba(220,38,38,.3); }
+  .pcontent { font-size:13px; color:var(--text-secondary); display:flex; align-items:center; flex-wrap:wrap; transition:opacity .2s,transform .2s; }
+  .pcontent.fout { opacity:0; transform:translateY(4px); }
+  .psep { margin:0 6px; color:var(--border-strong); font-size:11px; }
+  .sig-icon { display:inline-flex; align-items:center; margin-right:4px; vertical-align:middle; flex-shrink:0; }
+  .prow-label { position:absolute; top:-9px; right:0; font-size:9px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--ann-c); background:var(--surface); padding:0 4px; }
+
+  /* CTA */
+  .card-cta { margin:10px 14px 14px; padding:10px 0; border:1px solid var(--border-strong); border-radius:8px; text-align:center; font-size:14px; font-weight:600; cursor:pointer; transition:background .15s; }
+  .card-cta:hover { background:#f9fafb; }
+
+  /* Active readout */
+  .readout { text-align:center; margin-top:12px; font-size:11px; color:var(--text-tertiary); }
+
+  /* ── Right panel ── */
+  .right { padding-left:24px; min-width:380px; max-width:440px; }
+  .panel { background:var(--surface); border-radius:10px; border:1px solid var(--border-default); padding:20px; margin-bottom:20px; }
+  .panel-t { font-size:13px; font-weight:600; margin-bottom:4px; }
+  .panel-sub { font-size:12px; color:var(--text-tertiary); margin-bottom:16px; }
+
+  /* Signal toggles */
+  .stlist { display:flex; flex-direction:column; }
+  .st { display:flex; align-items:flex-start; gap:12px; padding:10px 12px; border-radius:8px; cursor:pointer; transition:background .15s; user-select:none; }
+  .st:hover { background:#f9fafb; }
+  .st.on { background:var(--zillow-blue-light); }
+  .st.win { box-shadow:inset 0 0 0 2px var(--zillow-blue); }
+  .sw { position:relative; width:36px; height:20px; background:var(--border-strong); border-radius:10px; flex-shrink:0; margin-top:1px; transition:background .2s; }
+  .sw::after { content:''; position:absolute; top:2px; left:2px; width:16px; height:16px; background:#fff; border-radius:50%; transition:transform .2s; box-shadow:0 1px 2px rgba(0,0,0,.15); }
+  .st.on .sw { background:var(--zillow-blue); }
+  .st.on .sw::after { transform:translateX(16px); }
+  .st-info { flex:1; }
+  .st-name { font-size:13px; font-weight:600; display:flex; align-items:center; gap:6px; }
+  .pnum { font-size:10px; font-weight:700; color:var(--text-tertiary); background:#f3f4f6; width:18px; height:18px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .st.on .pnum { background:rgba(0,106,255,.15); color:var(--zillow-blue); }
+  .st-trig { font-size:11px; color:var(--text-tertiary); margin-top:2px; }
+  .wlbl { display:none; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--zillow-blue); margin-left:auto; background:rgba(0,106,255,.08); padding:2px 6px; border-radius:3px; flex-shrink:0; }
+  .st.win .wlbl { display:block; }
+  .pnote { font-size:11px; color:var(--text-tertiary); margin-top:12px; padding-top:10px; border-top:1px solid var(--border-default); display:flex; align-items:center; gap:6px; }
+
+  /* Data source */
+  .src-row { display:flex; gap:8px; align-items:flex-start; padding:8px 0; border-bottom:1px solid var(--border-default); }
+  .src-row:last-child { border-bottom:0; }
+  .src-dot { width:6px; height:6px; border-radius:50%; margin-top:6px; flex-shrink:0; }
+  .src-lbl { font-size:12px; font-weight:600; }
+  .src-det { font-size:11px; color:var(--text-tertiary); margin-top:1px; }
+  .src-cov { display:inline-flex; font-size:10px; font-weight:600; padding:1px 5px; border-radius:3px; margin-top:3px; }
+  .cov-low { background:#fef2f2; color:#991b1b; }
+  .cov-ok { background:var(--green-bg); color:var(--green-price); }
+  .cov-med { background:#fffbeb; color:#92400e; }
+
+  /* ── Flow section ── */
+  .flow-s { max-width:1440px; margin:0 auto; padding:0 32px 20px; }
+  .flow-s h2 { font-size:15px; font-weight:600; margin-bottom:16px; }
+  .flow-box { background:var(--surface); border:1px solid var(--border-default); border-radius:10px; padding:32px; overflow-x:auto; }
+
+  /* ── Evidence ── */
+  .ev-s { margin-top:40px; max-width:1440px; margin-left:auto; margin-right:auto; padding:0 32px 60px; }
+  .ev-bar { display:flex; align-items:center; gap:12px; cursor:pointer; padding:16px 20px; background:var(--surface); border:1px solid var(--border-default); border-radius:10px; user-select:none; transition:background .15s; }
+  .ev-bar:hover { background:#fafafa; }
+  .ev-bar h2 { font-size:15px; font-weight:600; flex:1; }
+  .ev-bar .chv { transition:transform .25s; color:var(--text-tertiary); }
+  .ev-bar.open .chv { transform:rotate(180deg); }
+  .ev-body { display:none; background:var(--surface); border:1px solid var(--border-default); border-top:0; border-radius:0 0 10px 10px; padding:24px; }
+  .ev-body.open { display:block; }
+  .ev-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .ev-card { border:1px solid var(--border-default); border-radius:8px; padding:16px; transition:border-color .15s; }
+  .ev-card:hover { border-color:var(--border-strong); }
+  .ev-num { font-size:28px; font-weight:700; color:var(--zillow-blue); line-height:1.1; }
+  .ev-lbl { font-size:12px; color:var(--text-secondary); margin-top:4px; }
+  .ev-desc { font-size:12px; color:var(--text-tertiary); margin-top:8px; padding-top:8px; border-top:1px solid var(--border-default); }
+  .ev-src { font-size:10px; color:var(--text-tertiary); font-style:italic; margin-top:4px; }
+
+  /* ── Responsive ── */
+  @media (max-width:1300px) {
+    .main { grid-template-columns:1fr; justify-items:center; gap:32px; }
+    .left { padding-right:0; flex-direction:row; flex-wrap:wrap; max-width:720px; }
+    .ann { flex:1; min-width:200px; }
+    .ann::after { display:none; }
+    .cards-wrap { flex-direction:column; align-items:center; }
+    .right { padding-left:0; min-width:0; max-width:600px; width:100%; }
+    .ev-grid { grid-template-columns:1fr; }
+  }
+  @media (max-width:760px) {
+    .cards-wrap { flex-direction:column; }
+    .card-col { width:100%; max-width:375px; }
+  }
+
+  /* Hidden helpers */
+  .hidden { display:none !important; }
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<header class="hdr">
+  <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="6" fill="#006AFF"/><path d="M7 19V11l7-5 7 5v8a1 1 0 0 1-1 1h-4v-5h-4v5H8a1 1 0 0 1-1-1z" fill="#fff"/></svg>
+  <div>
+    <h1>Enhanced+ List Card &mdash; Dynamic Content System</h1>
+    <span class="sub">Zillow Rentals &middot; Personalization Row Spec &middot; v1.1</span>
+  </div>
+  <div class="hdr-r">
+    <span class="vbadge">Draft</span>
+    <span style="font-size:12px;color:var(--text-tertiary);">April 2026</span>
+  </div>
+</header>
+
+<!-- ═══ CARD TYPE TABS ═══ -->
+<div class="card-tabs" id="cardTabs">
+  <button class="card-tab active" data-view="both">Both Card Types</button>
+  <button class="card-tab" data-view="longtail">For Rent<span class="tab-sub">Long-tail / single unit</span></button>
+  <button class="card-tab" data-view="multi">For Rent Multi-unit<span class="tab-sub">Multi-family</span></button>
+</div>
+
+<!-- ═══ MAIN ═══ -->
+<div class="main">
+
+  <!-- Left annotations -->
+  <div class="left">
+    <div class="ann ann-a" data-zone="media">
+      <div class="lbl"><span class="dot"></span> A &middot; Media Zone</div>
+      <p>Photo carousel, 2:1 aspect ratio. Badge overlays top-left, save/more buttons top-right. Carousel dots bottom-center.</p>
+      <table class="diff-table">
+        <tr><th></th><th>For Rent</th><th>Multi-unit</th></tr>
+        <tr><td>Badges</td><td>Apply instantly</td><td>Special Offer</td></tr>
+        <tr><td>Actions</td><td>&#x2022;&#x2022;&#x2022; + &hearts;</td><td>&hearts; only</td></tr>
+        <tr><td>Photo content</td><td>Interior (unit)</td><td>Exterior (building)</td></tr>
+      </table>
+    </div>
+    <div class="ann ann-b" data-zone="core">
+      <div class="lbl"><span class="dot"></span> B &middot; Core Data Zone</div>
+      <p>Price, "Included fees", optional price drop. Bed/bath/sqft/type. Address.</p>
+      <table class="diff-table">
+        <tr><th></th><th>For Rent</th><th>Multi-unit</th></tr>
+        <tr><td>Price</td><td>$1,950/mo</td><td>$1,888+/mo</td></tr>
+        <tr><td>Bed/Bath</td><td>Fixed (4 bed 3 bath)</td><td>Range (1-3 bed)</td></tr>
+        <tr><td>Type</td><td>house / condo / etc.</td><td class="hl">&mdash; (implied)</td></tr>
+        <tr><td>Address</td><td>Full street address</td><td>Name | Address...</td></tr>
+        <tr><td>CTA</td><td class="hl">&mdash;</td><td>See 12 Units</td></tr>
+      </table>
+    </div>
+    <div class="ann ann-c" data-zone="pers">
+      <div class="lbl"><span class="dot"></span> C &middot; Personalization Row <span style="font-size:9px;background:#fef2f2;color:#dc2626;padding:1px 5px;border-radius:3px;text-transform:none;letter-spacing:0;font-weight:600;">NEW</span></div>
+      <p>Dynamic single row below address (before CTA on multi-unit). Content set by highest-priority active renter signal. Falls back to generic highlights. <strong>Same behavior on both card types.</strong></p>
+    </div>
+  </div>
+
+  <!-- Cards -->
+  <div class="cards-wrap" id="cardsWrap">
+
+    <!-- FOR RENT (long-tail) -->
+    <div class="card-col" id="cardLT">
+      <div class="card-col-header"><span class="card-col-label label-lt">For Rent</span></div>
+      <div class="card">
+        <div class="card-media interior zh zm" data-zone="media">
+          <div class="badges"><span class="bdg bdg-light">Apply instantly</span></div>
+          <div class="more-btn"><div class="more-dots"><span></span><span></span><span></span></div></div>
+          <div class="save-btn"><svg width="16" height="16" fill="none" stroke="#111827" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+          <div class="dots"><span></span><span></span><span></span><span></span><span></span></div>
+        </div>
+        <div class="cbody zh zc" data-zone="core">
+          <div class="price-row">
+            <span class="price">$1,950</span><span class="price-sfx">/mo</span>
+            <a class="inc-fees">Included fees</a>
+          </div>
+          <div class="drow"><strong>4</strong> bed <strong>3</strong> bath <strong>2,298</strong> sqft.<span class="sep">&middot;</span>house</div>
+          <div class="addr">26118 South Lonestar Lane, Austin TX 78704</div>
+        </div>
+        <div class="cbody" style="padding-top:0;padding-bottom:0;">
+          <div class="prow hl zh zp" data-zone="pers">
+            <span class="prow-label">DYNAMIC</span>
+            <div class="pcontent" id="pLT">
+              <span>Pet friendly</span><span class="psep">&middot;</span><span>In unit laundry</span><span class="psep">&middot;</span><span>A/C</span>
+            </div>
+          </div>
+        </div>
+        <div style="height:14px;"></div>
+      </div>
+      <div class="readout">Showing: <strong id="roLT">Default highlights</strong></div>
+    </div>
+
+    <!-- FOR RENT MULTI-UNIT -->
+    <div class="card-col" id="cardMU">
+      <div class="card-col-header"><span class="card-col-label label-mu">For Rent Multi-unit</span></div>
+      <div class="card">
+        <div class="card-media zh zm" data-zone="media">
+          <div class="badges"><span class="bdg bdg-dark">Special Offer</span></div>
+          <div class="save-btn"><svg width="16" height="16" fill="none" stroke="#111827" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+          <div class="dots"><span></span><span></span><span></span><span></span><span></span></div>
+        </div>
+        <div class="cbody zh zc" data-zone="core">
+          <div class="price-row">
+            <span class="price">$1,888+</span><span class="price-sfx">/mo</span>
+            <a class="inc-fees">Included fees</a>
+            <span class="price-drop"><svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M5 8L1 3h8L5 8z"/></svg>$112</span>
+          </div>
+          <div class="drow"><strong>1-3</strong> bed <strong>1-2</strong> bath <strong>800-1,298</strong> sqft.</div>
+          <div class="addr">Palm Court Commons | 2611S 2nd St # A, Austin...</div>
+        </div>
+        <div class="cbody" style="padding-top:0;padding-bottom:0;">
+          <div class="prow hl zh zp" data-zone="pers">
+            <span class="prow-label">DYNAMIC</span>
+            <div class="pcontent" id="pMU">
+              <span>Pet friendly</span><span class="psep">&middot;</span><span>In unit laundry</span><span class="psep">&middot;</span><span>Gym</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-cta">See 12 Units</div>
+      </div>
+      <div class="readout">Showing: <strong id="roMU">Default highlights</strong></div>
+    </div>
+
+  </div>
+
+  <!-- Right panel -->
+  <div class="right">
+    <div class="panel">
+      <div class="panel-t">Renter Signal Toggles</div>
+      <div class="panel-sub">Toggle signals on/off. Highest priority active signal wins the personalization row on <em>both</em> card types.</div>
+      <div class="stlist" id="sigToggles">
+        <div class="st" data-signal="cost" onclick="toggle('cost')">
+          <div class="sw"></div>
+          <div class="st-info"><div class="st-name"><span class="pnum">1</span> Cost Signal</div><div class="st-trig">Budget set, or Voyager affordability query</div></div>
+          <span class="wlbl">Showing</span>
+        </div>
+        <div class="st" data-signal="pet" onclick="toggle('pet')">
+          <div class="sw"></div>
+          <div class="st-info"><div class="st-name"><span class="pnum">2</span> Pet Signal</div><div class="st-trig">Pet in profile, or Voyager pet policy query</div></div>
+          <span class="wlbl">Showing</span>
+        </div>
+        <div class="st" data-signal="availability" onclick="toggle('availability')">
+          <div class="sw"></div>
+          <div class="st-info"><div class="st-name"><span class="pnum">3</span> Availability Signal</div><div class="st-trig">Target move-in date set</div></div>
+          <span class="wlbl">Showing</span>
+        </div>
+        <div class="st" data-signal="commute" onclick="toggle('commute')">
+          <div class="sw"></div>
+          <div class="st-info"><div class="st-name"><span class="pnum">4</span> Commute Signal</div><div class="st-trig">Daily spots / Multi Commute profile</div></div>
+          <span class="wlbl">Showing</span>
+        </div>
+        <div class="st" data-signal="lease" onclick="toggle('lease')">
+          <div class="sw"></div>
+          <div class="st-info"><div class="st-name"><span class="pnum">5</span> Lease / Eligibility Signal</div><div class="st-trig">Voyager detected voucher, short-term, or requirements intent</div></div>
+          <span class="wlbl">Showing</span>
+        </div>
+      </div>
+      <div class="pnote">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="var(--text-tertiary)"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm.5 10.5h-1v-1h1v1zm0-2h-1v-5h1v5z"/></svg>
+        v1: single row, highest priority wins. Cost&nbsp;&gt;&nbsp;Pet&nbsp;&gt;&nbsp;Availability&nbsp;&gt;&nbsp;Commute&nbsp;&gt;&nbsp;Lease.
+      </div>
+    </div>
+
+    <div class="panel" id="srcPanel">
+      <div class="panel-t">Data Source</div>
+      <div class="panel-sub" id="srcSub">Currently showing default highlights</div>
+      <div id="srcContent">
+        <div class="src-row">
+          <div class="src-dot" style="background:var(--border-strong);"></div>
+          <div><div class="src-lbl">Generic Highlights</div><div class="src-det">amenities, petPolicy, laundry fields from TMP listing payload</div><div class="src-cov cov-ok">Good coverage</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ FLOW DIAGRAM ═══ -->
+<div class="flow-s">
+  <h2>Signal Routing Logic</h2>
+  <div class="flow-box">
+    <svg viewBox="0 0 900 320" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:900px;margin:0 auto;display:block;">
+      <rect x="370" y="10" width="160" height="40" rx="20" fill="#006AFF"/>
+      <text x="450" y="35" text-anchor="middle" fill="#fff" font-size="13" font-weight="600" font-family="-apple-system,system-ui,sans-serif">Renter Views Card</text>
+      <line x1="450" y1="50" x2="450" y2="80" stroke="#d1d5db" stroke-width="1.5"/>
+      <polygon points="445,76 450,84 455,76" fill="#d1d5db"/>
+      <polygon points="450,84 540,124 450,164 360,124" fill="#f9fafb" stroke="#d1d5db" stroke-width="1.5"/>
+      <text x="450" y="120" text-anchor="middle" fill="#374151" font-size="11" font-weight="600" font-family="-apple-system,system-ui,sans-serif">Any signals</text>
+      <text x="450" y="134" text-anchor="middle" fill="#374151" font-size="11" font-weight="600" font-family="-apple-system,system-ui,sans-serif">active?</text>
+      <line x1="360" y1="124" x2="160" y2="124" stroke="#d1d5db" stroke-width="1.5"/>
+      <polygon points="164,119 156,124 164,129" fill="#d1d5db"/>
+      <text x="260" y="116" text-anchor="middle" fill="#6b7280" font-size="10" font-family="-apple-system,system-ui,sans-serif">No</text>
+      <rect x="40" y="104" width="120" height="40" rx="8" fill="#f3f4f6" stroke="#d1d5db" stroke-width="1"/>
+      <text x="100" y="121" text-anchor="middle" fill="#374151" font-size="11" font-weight="500" font-family="-apple-system,system-ui,sans-serif">Default</text>
+      <text x="100" y="135" text-anchor="middle" fill="#6b7280" font-size="9" font-family="-apple-system,system-ui,sans-serif">Generic highlights</text>
+      <line x1="450" y1="164" x2="450" y2="194" stroke="#d1d5db" stroke-width="1.5"/>
+      <polygon points="445,190 450,198 455,190" fill="#d1d5db"/>
+      <text x="462" y="182" fill="#6b7280" font-size="10" font-family="-apple-system,system-ui,sans-serif">Yes</text>
+      <text x="450" y="212" text-anchor="middle" fill="#4b5563" font-size="11" font-weight="600" font-family="-apple-system,system-ui,sans-serif">Apply priority stack (highest wins)</text>
+      <line x1="450" y1="218" x2="450" y2="248" stroke="#d1d5db" stroke-width="1.5"/>
+      <line x1="450" y1="248" x2="100" y2="248" stroke="#d1d5db" stroke-width="1"/>
+      <line x1="450" y1="248" x2="270" y2="248" stroke="#d1d5db" stroke-width="1"/>
+      <line x1="450" y1="248" x2="630" y2="248" stroke="#d1d5db" stroke-width="1"/>
+      <line x1="450" y1="248" x2="800" y2="248" stroke="#d1d5db" stroke-width="1"/>
+      <rect x="30" y="248" width="140" height="52" rx="8" fill="#e8f1ff" stroke="#006AFF" stroke-width="1.5"/>
+      <text x="100" y="268" text-anchor="middle" fill="#006AFF" font-size="11" font-weight="700" font-family="-apple-system,system-ui,sans-serif">P1: Cost</text>
+      <text x="100" y="284" text-anchor="middle" fill="#4b5563" font-size="9" font-family="-apple-system,system-ui,sans-serif">Est. monthly + move-in</text>
+      <rect x="200" y="248" width="140" height="52" rx="8" fill="#e8f1ff" stroke="#006AFF" stroke-width="1.5"/>
+      <text x="270" y="268" text-anchor="middle" fill="#006AFF" font-size="11" font-weight="700" font-family="-apple-system,system-ui,sans-serif">P2: Pet</text>
+      <text x="270" y="284" text-anchor="middle" fill="#4b5563" font-size="9" font-family="-apple-system,system-ui,sans-serif">Policy + fees</text>
+      <rect x="370" y="248" width="160" height="52" rx="8" fill="#e8f1ff" stroke="#006AFF" stroke-width="1.5"/>
+      <text x="450" y="268" text-anchor="middle" fill="#006AFF" font-size="11" font-weight="700" font-family="-apple-system,system-ui,sans-serif">P3: Availability</text>
+      <text x="450" y="284" text-anchor="middle" fill="#4b5563" font-size="9" font-family="-apple-system,system-ui,sans-serif">Timing match</text>
+      <rect x="560" y="248" width="140" height="52" rx="8" fill="#e8f1ff" stroke="#006AFF" stroke-width="1.5"/>
+      <text x="630" y="268" text-anchor="middle" fill="#006AFF" font-size="11" font-weight="700" font-family="-apple-system,system-ui,sans-serif">P4: Commute</text>
+      <text x="630" y="284" text-anchor="middle" fill="#4b5563" font-size="9" font-family="-apple-system,system-ui,sans-serif">Drive/transit times</text>
+      <rect x="730" y="248" width="140" height="52" rx="8" fill="#e8f1ff" stroke="#006AFF" stroke-width="1.5"/>
+      <text x="800" y="268" text-anchor="middle" fill="#006AFF" font-size="11" font-weight="700" font-family="-apple-system,system-ui,sans-serif">P5: Lease</text>
+      <text x="800" y="284" text-anchor="middle" fill="#4b5563" font-size="9" font-family="-apple-system,system-ui,sans-serif">Qualifications</text>
+    </svg>
+  </div>
+</div>
+
+<!-- ═══ EVIDENCE ═══ -->
+<div class="ev-s">
+  <div class="ev-bar" id="evBar" onclick="toggleEv()">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect width="20" height="20" rx="4" fill="#e8f1ff"/><path d="M10 5v6M10 13v1" stroke="#006AFF" stroke-width="1.5" stroke-linecap="round"/></svg>
+    <h2>Why these content types? &mdash; Voyager Evidence</h2>
+    <svg class="chv" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4.47 5.47a.75.75 0 0 1 1.06 0L8 7.94l2.47-2.47a.75.75 0 1 1 1.06 1.06l-3 3a.75.75 0 0 1-1.06 0l-3-3a.75.75 0 0 1 0-1.06z"/></svg>
+  </div>
+  <div class="ev-body" id="evBody">
+    <div class="ev-grid">
+      <div class="ev-card">
+        <div class="ev-num">~1,700/mo</div>
+        <div class="ev-lbl">Utility-related Voyager prompts</div>
+        <div class="ev-desc">22% of all rental Voyager volume. Renters ask about costs, utilities, and fees at massive scale.</div>
+        <div class="ev-src">Source: Voyager prompt analysis, Q1 2026</div>
+      </div>
+      <div class="ev-card">
+        <div class="ev-num">9.4%</div>
+        <div class="ev-lbl">Renter &rarr; PMC messages about pet policy</div>
+        <div class="ev-desc">Pet policy is the #1 specific info gap. Nearly 1 in 10 renter messages to property managers.</div>
+        <div class="ev-src">Source: Renter-to-PMC message analysis</div>
+      </div>
+      <div class="ev-card">
+        <div class="ev-num">163</div>
+        <div class="ev-lbl">Move-in cost prompts (98 phrasings)</div>
+        <div class="ev-desc">Renters ask about total move-in costs in 98+ distinct ways. Currently buried in fee tables.</div>
+        <div class="ev-src">Source: Voyager prompt clustering</div>
+      </div>
+      <div class="ev-card">
+        <div class="ev-num">16.6%</div>
+        <div class="ev-lbl">Renter &rarr; PMC messages about availability</div>
+        <div class="ev-desc">Most common renter question to property managers. Matching to renter's target date = immediate relevance.</div>
+        <div class="ev-src">Source: Renter-to-PMC message analysis</div>
+      </div>
+      <div class="ev-card">
+        <div class="ev-num">"Mission critical"</div>
+        <div class="ev-lbl">Commute importance for renters</div>
+        <div class="ev-desc">Described as mission-critical for the majority of renters. Multi Commute daily spots provides the profile data.</div>
+        <div class="ev-src">Source: Renter research synthesis</div>
+      </div>
+      <div class="ev-card">
+        <div class="ev-num">12.4%</div>
+        <div class="ev-lbl">Voyager searches hit dead ends</div>
+        <div class="ev-desc">67% of dead-end searches are from renters. Surfacing answers on the card reduces Voyager dependency.</div>
+        <div class="ev-src">Source: Voyager dead-end analysis</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SIG = {
+  cost: {
+    html: '<span class="sig-icon"><svg width="14" height="14" viewBox="0 0 16 16" fill="#006AFF"><circle cx="8" cy="8" r="7" fill="none" stroke="#006AFF" stroke-width="1.3"/><text x="8" y="11.5" text-anchor="middle" font-size="10" font-weight="700" fill="#006AFF">$</text></svg></span>Est. monthly: $2,450 (incl. water)<span class="psep">&middot;</span>Est. move in: $5,800',
+    label: 'Cost context',
+    src: { label:'Cost Data', detail:'TMP fields: monthlyRent, utilityDetails, feeBreakdown tables. "Est. move-in cost" internal calculation (deposit + first month + app fee).', cov:'cov-ok', covLabel:'Good coverage' }
+  },
+  pet: {
+    html: '<span class="sig-icon"><svg width="14" height="14" viewBox="0 0 16 16" fill="#006AFF"><circle cx="5" cy="4" r="1.2"/><circle cx="11" cy="4" r="1.2"/><circle cx="3" cy="7.5" r="1.2"/><circle cx="13" cy="7.5" r="1.2"/><path d="M8 14c2.2 0 3.5-1.8 3.5-3.5S10 8 8 8s-3.5.7-3.5 2.5S5.8 14 8 14z"/></svg></span>Dogs allowed up to 50 lb<span class="psep">&middot;</span>$250 deposit, $35/mo pet rent',
+    label: 'Pet details',
+    src: { label:'Pet Data', detail:'petsAllowed, petDetails, petFees fields from TMP. Coverage note: ~22% of listings show "Unknown" for pet policy.', cov:'cov-low', covLabel:'~22% Unknown' }
+  },
+  availability: {
+    html: '<span class="sig-icon"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="11" rx="2" stroke="#006AFF" stroke-width="1.3"/><line x1="2" y1="6" x2="14" y2="6" stroke="#006AFF" stroke-width="1.3"/><line x1="5" y1="1" x2="5" y2="4" stroke="#006AFF" stroke-width="1.3" stroke-linecap="round"/><line x1="11" y1="1" x2="11" y2="4" stroke="#006AFF" stroke-width="1.3" stroke-linecap="round"/></svg></span>Available Aug 1<span class="psep">&middot;</span>Matches your Sep move-in',
+    label: 'Availability match',
+    src: { label:'Availability Data', detail:'availableFrom date field from TMP listing. Compared against renter\'s savedMoveInDate profile field.', cov:'cov-med', covLabel:'Moderate coverage' }
+  },
+  commute: {
+    html: '<span class="sig-icon"><svg width="14" height="14" viewBox="0 0 16 16" fill="#006AFF"><path d="M8 1C5.24 1 3 3.24 3 6c0 4.5 5 9 5 9s5-4.5 5-9c0-2.76-2.24-5-5-5zm0 7a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg></span>15 min drive to Work<span class="psep">&middot;</span>5 min walk to light rail',
+    label: 'Commute context',
+    src: { label:'Commute Data', detail:'Multi Commute daily spots profile (saved locations + transport modes) + isochrone calculations for drive/transit/walk times.', cov:'cov-med', covLabel:'Requires profile setup' }
+  },
+  lease: {
+    html: '<span class="sig-icon"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#006AFF" stroke-width="1.3"><rect x="3" y="2" width="10" height="12" rx="1.5"/><line x1="5.5" y1="5" x2="10.5" y2="5"/><line x1="5.5" y1="7.5" x2="10.5" y2="7.5"/><line x1="5.5" y1="10" x2="8.5" y2="10"/></svg></span>3&times; income<span class="psep">&middot;</span>600+ credit<span class="psep">&middot;</span>Vouchers accepted<span class="psep">&middot;</span>Month to month',
+    label: 'Lease qualifications',
+    src: { label:'Lease / Eligibility Data', detail:'leaseTerms, voucherAcceptance, incomeRequirements, creditRequirements fields. Very sparse data today.', cov:'cov-low', covLabel:'Very sparse data' }
+  }
+};
+
+const DFLT_LT = '<span>Pet friendly</span><span class="psep">&middot;</span><span>In unit laundry</span><span class="psep">&middot;</span><span>A/C</span>';
+const DFLT_MU = '<span>Pet friendly</span><span class="psep">&middot;</span><span>In unit laundry</span><span class="psep">&middot;</span><span>Gym</span>';
+const DFLT_SRC = { label:'Generic Highlights', detail:'amenities, petPolicy, laundry fields from TMP listing payload', cov:'cov-ok', covLabel:'Good coverage' };
+const PRI = ['cost','pet','availability','commute','lease'];
+let active = new Set();
+
+function toggle(s) {
+  active.has(s) ? active.delete(s) : active.add(s);
+  render();
+}
+
+function winner() {
+  for (const s of PRI) if (active.has(s)) return s;
+  return null;
+}
+
+function render() {
+  const w = winner();
+  // Animate both cards
+  ['pLT','pMU'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.classList.add('fout');
+    setTimeout(() => {
+      el.innerHTML = w ? SIG[w].html : (i === 0 ? DFLT_LT : DFLT_MU);
+      el.classList.remove('fout');
+    }, 150);
+  });
+  document.getElementById('roLT').textContent = w ? SIG[w].label : 'Default highlights';
+  document.getElementById('roMU').textContent = w ? SIG[w].label : 'Default highlights';
+
+  // Source panel
+  const s = w ? SIG[w].src : DFLT_SRC;
+  document.getElementById('srcSub').textContent = w ? `Active signal: ${SIG[w].label}` : 'Currently showing default highlights';
+  const clr = { cost:'#006AFF', pet:'#7c3aed', availability:'#059669', commute:'#f59e0b', lease:'#6b7280' };
+  document.getElementById('srcContent').innerHTML = `<div class="src-row"><div class="src-dot" style="background:${w ? clr[w] : 'var(--border-strong)'};"></div><div><div class="src-lbl">${s.label}</div><div class="src-det">${s.detail}</div><div class="src-cov ${s.cov}">${s.covLabel}</div></div></div>`;
+
+  // Toggles
+  document.querySelectorAll('.st').forEach(el => {
+    const sig = el.dataset.signal;
+    el.classList.toggle('on', active.has(sig));
+    el.classList.toggle('win', sig === w);
+  });
+}
+
+// Card type tabs
+document.querySelectorAll('.card-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.card-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const v = tab.dataset.view;
+    document.getElementById('cardLT').classList.toggle('hidden', v === 'multi');
+    document.getElementById('cardMU').classList.toggle('hidden', v === 'longtail');
+  });
+});
+
+// Evidence
+function toggleEv() {
+  document.getElementById('evBar').classList.toggle('open');
+  document.getElementById('evBody').classList.toggle('open');
+}
+
+// Zone hover linking
+document.querySelectorAll('.ann').forEach(a => {
+  const z = a.dataset.zone;
+  a.addEventListener('mouseenter', () => document.querySelectorAll(`[data-zone="${z}"]`).forEach(e => e.classList.add('on')));
+  a.addEventListener('mouseleave', () => document.querySelectorAll(`[data-zone="${z}"]`).forEach(e => e.classList.remove('on')));
+});
+
+render();
+</script>
+</body>
+</html>
