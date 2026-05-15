@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rentals Rich List Cards v1.0 — State Matrix</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+  /* ════════════════════════════════════════════════════════
+     ZxD TOKEN LAYER
+     Aligns with the ZxD Design System (May 2026 refresh).
+     Object Sans Heavy is the cross-platform heading face;
+     Inter is body for web. Inter Black is the public fallback
+     for Object Sans Heavy when it isn't installed.
+     ════════════════════════════════════════════════════════ */
+  :root {
+    /* Type stacks */
+    --font-head: "PP Object Sans", "Object Sans Heavy", "Inter", system-ui, -apple-system, sans-serif;
+    --font-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+    /* ── Brand ramps (approximations of ZxD swatches) ── */
+    --blue-50:  #EEF3FF;
+    --blue-100: #DCE4FF;
+    --blue-200: #B8CAFF;
+    --blue-400: #5C7CFF;
+    --blue-600: #1F4DFF;   /* Zillow Blue · action only */
+    --blue-700: #0F3AE6;
+    --blue-800: #001D6C;   /* Waterfront */
+    --aqua-300: #9BD8F6;   /* Pool */
+
+    --teal-50:  #ECF5F2;
+    --teal-300: #6FB8A5;
+    --teal-600: #1F6B5C;   /* Garden */
+    --teal-800: #0E3A33;
+
+    --orange-100: #FDE7DC;
+    --orange-300: #E89B7A;  /* Terracotta */
+    --orange-600: #C84A1B;  /* Fireplace */
+    --orange-700: #A53E16;
+
+    --purple-100: #ECE0FA;
+    --purple-300: #C9A3F5;  /* Dollhouse */
+    --purple-500: #7B2CBF;  /* Playroom */
+    --purple-800: #3F1466;  /* Wine Cellar */
+
+    --green-50:  #ECF7EF;
+    --green-300: #A8E6A1;   /* Houseplant */
+    --green-600: #137333;
+    --red-600:   #C53030;
+    --yellow-400: #F4B400;
+
+    /* Neutrals */
+    --white:    #FFFFFF;
+    --gray-50:  #F7F8FA;
+    --gray-100: #EEF0F4;
+    --gray-200: #E1E5EC;
+    --gray-300: #C8CFDA;
+    --gray-400: #98A2B3;
+    --gray-500: #667085;
+    --gray-700: #344054;
+    --gray-900: #101828;
+    --gray-950: #0B1220;
+
+    /* ── Semantic surfaces ── */
+    --surface:        var(--white);
+    --surface-page:   #E5E5E5;
+    --surface-sunken: var(--gray-100);
+    --border:         var(--gray-200);
+    --border-strong:  var(--gray-300);
+
+    /* ── Semantic text ── */
+    --text-primary:   var(--gray-950);
+    --text-secondary: var(--gray-700);
+    --text-tertiary:  var(--gray-500);
+    --text-disabled:  var(--gray-400);
+    --text-on-dark:   var(--white);
+
+    /* ── Semantic action ── */
+    --action:         var(--blue-600);
+    --action-hover:   var(--blue-700);
+
+    /* ── Variant accents (zone 4 personalization icons + rails) ── */
+    --acc-quickscan: var(--gray-500);
+    --acc-cost:      var(--blue-600);
+    --acc-pet:       var(--purple-500);
+    --acc-avail:     var(--teal-600);
+    --acc-commute:   var(--orange-600);
+    --acc-lease:     var(--gray-700);
+    --acc-amenity:   var(--teal-600);
+    --acc-voyager:   var(--purple-500);
+
+    /* ── Spacing scale (8px base + 4/12 tunables) ── */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-12: 48px;
+
+    /* ── Radius (12 default, 20 hero, full chip) ── */
+    --radius-md:   12px;
+    --radius-lg:   20px;
+    --radius-full: 9999px;
+
+    /* ── Elevation: soft, diffuse, low-opacity ── */
+    --elev-1: 0 1px 2px rgba(15,23,42,.04), 0 1px 3px rgba(15,23,42,.05);
+    --elev-2: 0 2px 4px rgba(15,23,42,.04), 0 6px 16px rgba(15,23,42,.07);
+    --elev-3: 0 4px 8px rgba(15,23,42,.05), 0 12px 32px rgba(15,23,42,.10);
+
+    /* ── Typography composites — Web ── */
+    --t-h-xl:  900 60px/1.05 var(--font-head);
+    --t-h-lg:  900 44px/1.1  var(--font-head);
+    --t-h-md:  900 36px/1.1  var(--font-head);
+    --t-h-sm:  900 24px/1.15 var(--font-head);
+    --t-h-xs:  900 20px/1.2  var(--font-head);
+    --t-lead:   700 18px/1.45 var(--font-body);
+    --t-body:   400 16px/1.5  var(--font-body);
+    --t-body-bold: 700 16px/1.5 var(--font-body);
+    --t-body-sm: 400 14px/1.5 var(--font-body);
+    --t-body-sm-bold: 700 14px/1.5 var(--font-body);
+    --t-caption: 400 12px/1.4 var(--font-body);
+    --t-eyebrow: 700 11px/1.2 var(--font-body);
+  }
+
+  /* ════════════════════════════════════════════════════════
+     BASE
+     ════════════════════════════════════════════════════════ */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    font: var(--t-body);
+    color: var(--text-primary);
+    background: var(--surface-page);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  h1, h2, h3 { font-family: var(--font-head); font-weight: 900; letter-spacing: -.01em; color: var(--text-primary); }
+  a { color: inherit; }
+
+  /* ════════════════════════════════════════════════════════
+     HEADER
+     ════════════════════════════════════════════════════════ */
+  .hdr {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: var(--space-4) var(--space-8);
+    display: flex; align-items: center; gap: var(--space-4);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .hdr-logo { display: flex; flex-shrink: 0; }
+  .hdr-titles h1 { font: var(--t-h-xs); letter-spacing: -.015em; }
+  .hdr-titles .sub { font: var(--t-caption); color: var(--text-tertiary); margin-top: 2px; }
+  .hdr-right { margin-left: auto; display: flex; align-items: center; gap: var(--space-3); }
+  .vbadge {
+    font: var(--t-eyebrow);
+    color: var(--blue-600);
+    background: var(--blue-50);
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    letter-spacing: .08em; text-transform: uppercase;
+  }
+  .hdr-meta { font: var(--t-caption); color: var(--text-tertiary); }
+
+  /* ════════════════════════════════════════════════════════
+     SECTION
+     ════════════════════════════════════════════════════════ */
+  .section { max-width: 1480px; margin: 0 auto; padding: var(--space-12) var(--space-8) var(--space-2); }
+  .section.last { padding-bottom: var(--space-12); }
+  .section-head { margin-bottom: var(--space-6); max-width: 780px; }
+  .section-eyebrow { font: var(--t-eyebrow); text-transform: uppercase; letter-spacing: .08em; color: var(--text-tertiary); margin-bottom: var(--space-2); }
+  .section-title { font: var(--t-h-sm); margin-bottom: var(--space-2); }
+  .section-sub { font: var(--t-body); color: var(--text-secondary); }
+
+  /* ════════════════════════════════════════════════════════
+     ANATOMY KEY
+     ════════════════════════════════════════════════════════ */
+  .anatomy {
+    background: #DEDEDE;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-8);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+  .diagram-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: var(--space-8);
+  }
+  .diagram-head {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
+    flex-wrap: wrap;
+  }
+  .diagram-eyebrow {
+    font: var(--t-eyebrow);
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: var(--text-tertiary);
+    padding: 4px 10px;
+    background: var(--gray-100);
+    border-radius: var(--radius-full);
+  }
+  .diagram-title { font: var(--t-h-xs); color: var(--text-primary); }
+  .diagram-sub {
+    font: var(--t-body-sm);
+    color: var(--text-secondary);
+    margin-left: auto;
+    max-width: 360px;
+    text-align: right;
+  }
+
+  /* HIERARCHY DIAGRAM */
+  .hierarchy-layout {
+    display: grid;
+    grid-template-columns: 375px 1fr;
+    gap: var(--space-12);
+    align-items: center;
+  }
+  .hierarchy-card-wrap { width: 375px; }
+  .hierarchy-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .h-bar {
+    padding: 14px var(--space-3);
+    font: 900 14px/1.15 var(--font-head);
+    letter-spacing: .02em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .h-bar-num {
+    font: 700 10px/1 var(--font-body);
+    background: rgba(255,255,255,.22);
+    color: inherit;
+    padding: 3px 6px;
+    border-radius: 4px;
+    letter-spacing: .06em;
+  }
+  .h-bar.b-primary    { background: #D8C8F5; color: var(--gray-950); }
+  .h-bar.b-secondary  { background: var(--purple-500); color: var(--white); }
+  .h-bar.b-tertiary   { background: #B8D8F0; color: var(--gray-950); }
+  .h-bar.b-quaternary { background: var(--teal-600); color: var(--white); }
+  .h-bar.b-quinary    { background: var(--green-300); color: var(--gray-950); }
+  .h-bar.b-primary .h-bar-num,
+  .h-bar.b-tertiary .h-bar-num,
+  .h-bar.b-quinary .h-bar-num { background: rgba(0,0,0,.10); color: var(--gray-700); }
+
+  .h-key {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  .h-key-row {
+    display: grid;
+    grid-template-columns: 16px 120px 1fr;
+    gap: var(--space-3);
+    align-items: start;
+  }
+  .h-key-swatch {
+    width: 16px; height: 16px;
+    border-radius: 4px;
+    margin-top: 4px;
+  }
+  .h-key-swatch.b-primary    { background: #D8C8F5; }
+  .h-key-swatch.b-secondary  { background: var(--purple-500); }
+  .h-key-swatch.b-tertiary   { background: #B8D8F0; }
+  .h-key-swatch.b-quaternary { background: var(--teal-600); }
+  .h-key-swatch.b-quinary    { background: var(--green-300); }
+  .h-key-label { font: var(--t-body-bold); }
+  .h-key-desc { font: var(--t-body-sm); color: var(--text-secondary); line-height: 1.5; }
+  .h-key-desc strong { font-weight: 700; color: var(--text-primary); }
+
+  /* DATA INPUTS DIAGRAM */
+  .inputs-layout {
+    display: grid;
+    grid-template-columns: 300px 375px 300px;
+    gap: var(--space-6);
+    justify-content: center;
+    align-items: start;
+  }
+  .cluster-col { display: flex; flex-direction: column; gap: var(--space-3); }
+  .cluster-group {
+    border: 1px solid var(--border);
+    background: var(--white);
+    border-radius: var(--radius-md);
+    padding: var(--space-3) var(--space-4);
+    box-shadow: var(--elev-1);
+  }
+  .cluster-title {
+    font: var(--t-eyebrow);
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .cluster-title::before {
+    content: "";
+    width: 8px; height: 8px;
+    border-radius: 2px;
+  }
+  /* Annotates label — the single signal that ties each cluster to its card region */
+  .cluster-target {
+    font: var(--t-body-sm);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-3);
+    display: flex; align-items: center; gap: 4px;
+  }
+  .cluster-target::before {
+    content: "→";
+    color: var(--text-tertiary);
+    font-weight: 700;
+    margin-right: 2px;
+  }
+  .cluster-target strong { color: var(--text-primary); font-weight: 700; }
+  .cluster-group.c-marketing      .cluster-title { color: var(--orange-700); }
+  .cluster-group.c-marketing      .cluster-title::before { background: var(--orange-600); }
+  .cluster-group.c-actions        .cluster-title { color: var(--gray-700); }
+  .cluster-group.c-actions        .cluster-title::before { background: var(--gray-500); }
+  .cluster-group.c-financial      .cluster-title { color: var(--green-600); }
+  .cluster-group.c-financial      .cluster-title::before { background: var(--green-600); }
+  .cluster-group.c-dwelling       .cluster-title { color: #8A6A0C; }
+  .cluster-group.c-dwelling       .cluster-title::before { background: #B58A0F; }
+  .cluster-group.c-premium        .cluster-title { color: var(--blue-700); }
+  .cluster-group.c-premium        .cluster-title::before { background: var(--blue-600); }
+  .cluster-group.c-personalization .cluster-title { color: var(--purple-500); }
+  .cluster-group.c-personalization .cluster-title::before { background: var(--purple-500); }
+
+  .chip-stack { display: flex; flex-direction: column; gap: 5px; }
+  .input-chip {
+    font: var(--t-body-sm-bold);
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+    text-align: center;
+    border: 1px solid;
+    line-height: 1.3;
+  }
+  /* Sub-stack for nested actions (e.g. inside the More menu) */
+  .chip-substack {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 4px 0 4px 14px;
+    padding-left: 12px;
+    border-left: 2px solid var(--gray-200);
+  }
+  .input-chip-sub {
+    font: 600 12px/1.3 var(--font-body);
+    padding: 4px 10px;
+  }
+  .cluster-group.c-actions .input-chip-sub {
+    background: var(--gray-50);
+    color: var(--text-tertiary);
+    border-color: var(--gray-200);
+  }
+  .cluster-group.c-marketing      .input-chip { background: var(--orange-100); color: var(--orange-700); border-color: rgba(200,74,27,.20); }
+  .cluster-group.c-actions        .input-chip { background: var(--gray-100); color: var(--gray-700); border-color: var(--gray-200); }
+  .cluster-group.c-financial      .input-chip { background: var(--green-50); color: var(--green-600); border-color: rgba(19,115,51,.20); }
+  .cluster-group.c-dwelling       .input-chip { background: #FAF1CC; color: #8A6A0C; border-color: rgba(138,106,12,.20); }
+  .cluster-group.c-premium        .input-chip { background: var(--blue-50); color: var(--blue-700); border-color: rgba(31,77,255,.20); }
+  .cluster-group.c-personalization .input-chip { background: var(--purple-100); color: var(--purple-500); border-color: rgba(123,44,191,.20); }
+
+  .cluster-note {
+    font: 400 11px/1.45 var(--font-body);
+    color: var(--text-tertiary);
+    margin-top: var(--space-3);
+    padding-top: 8px;
+    border-top: 1px dashed var(--border);
+  }
+  .cluster-note strong { font-weight: 700; color: var(--text-secondary); }
+  .inputs-card-wrap { display: flex; align-items: center; justify-content: center; padding-top: var(--space-2); }
+
+  /* Colored edge rails on the reference card — minimal visual guide that
+     mirrors each cluster's accent color. All rails live at the card level
+     so they share a single x-axis (−10px from card edge). Top values are
+     tuned to align with each annotated region. */
+  .inputs-card-wrap .card { position: relative; overflow: visible; }
+  .inputs-card-wrap .media { overflow: hidden; border-radius: var(--radius-md) var(--radius-md) 0 0; }
+  .region-rail {
+    position: absolute;
+    width: 4px;
+    border-radius: 4px;
+    z-index: 6;
+  }
+  .rail-marketing       { top: 12px;  left:  -10px; height: 28px; background: var(--orange-600); }
+  .rail-actions         { top: 12px;  right: -10px; height: 28px; background: var(--gray-700); }
+  .rail-financial       { top: 200px; right: -10px; height: 32px; background: var(--green-600); }
+  .rail-dwelling        { top: 232px; right: -10px; height: 22px; background: #B58A0F; }
+  .rail-premium         { top: 286px; left:  -10px; height: 32px; background: var(--blue-600); }
+  .rail-personalization { top: 330px; left:  -10px; height: 32px; background: var(--purple-500); }
+
+  /* ════════════════════════════════════════════════════════
+     STATE MATRIX GRID
+     ════════════════════════════════════════════════════════ */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(355px, 1fr));
+    gap: var(--space-8) var(--space-6);
+    justify-content: start;
+  }
+  .state-col { width: 100%; max-width: 375px; justify-self: center; }
+  .state-head { margin-bottom: var(--space-3); padding: 0 var(--space-1); }
+  .state-num-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    font: var(--t-eyebrow);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    background: var(--gray-100);
+    color: var(--text-secondary);
+  }
+  .state-num-tag.personalized { background: var(--blue-50); color: var(--blue-700); }
+  .state-num-tag.premium { background: var(--gray-900); color: var(--white); }
+  .state-num-tag.voyager { background: var(--purple-100); color: var(--purple-500); }
+  .state-title { font: var(--t-body-bold); margin-top: var(--space-2); }
+  .state-note { font: var(--t-body-sm); color: var(--text-tertiary); margin-top: 2px; }
+
+  /* ════════════════════════════════════════════════════════
+     CARD
+     ════════════════════════════════════════════════════════ */
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius-md);
+    box-shadow: var(--elev-1);
+    overflow: hidden;
+  }
+  .card.is-elev { box-shadow: var(--elev-2); }
+  .card-foot { height: var(--space-3); }
+
+  /* MEDIA — 2:1 per v1 anatomy decision (user-locked) */
+  .media { position: relative; width: 100%; aspect-ratio: 2/1; overflow: hidden; background: var(--gray-200); }
+  .media-img-1  { background: linear-gradient(135deg, #b8c4d4 0%, #8a9bb0 55%, #6e8295 100%); }
+  .media-img-2  { background: linear-gradient(135deg, #d4c3b0 0%, #b09b82 55%, #8c7458 100%); }
+  .media-img-3  { background: linear-gradient(135deg, #c4cfb8 0%, #94a880 55%, #6b8459 100%); }
+  .media-img-4  { background: linear-gradient(135deg, #c8b8c8 0%, #9b8a9b 55%, #735f73 100%); }
+  .media-img-5  { background: linear-gradient(135deg, #b8b8c4 0%, #818194 55%, #5a5a6f 100%); }
+  .media-img-6  { background: linear-gradient(135deg, #cfc2b3 0%, #a08e7b 55%, #76654f 100%); }
+  .media-img-7  { background: linear-gradient(135deg, #b3c4cf 0%, #7a93a3 55%, #4f6c80 100%); }
+  .media-img-8  { background: linear-gradient(135deg, #1a1f2e 0%, #2a3142 50%, #404a5f 100%); }
+  .media-img-9  { background: linear-gradient(135deg, #c5cfd4 0%, #8a99a3 55%, #5b6d79 100%); }
+  .media-img-10 { background: linear-gradient(135deg, #b8cbd8 0%, #6f8a9e 55%, #45647a 100%); }
+  .media::after {
+    content: ""; position: absolute; inset: auto 0 0 0; height: 40%;
+    background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.20));
+    pointer-events: none;
+  }
+
+  /* Pills/badges on media — fully rounded per ZxD */
+  .badges-top {
+    position: absolute; top: var(--space-3); left: var(--space-3);
+    display: flex; gap: var(--space-2); flex-wrap: wrap;
+    max-width: calc(100% - 110px); z-index: 2;
+  }
+  .pill {
+    font: var(--t-body-sm-bold);
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    line-height: 1.3;
+    backdrop-filter: blur(8px);
+  }
+  .pill-light { background: rgba(255,255,255,.95); color: var(--text-primary); }
+  .pill-dark  { background: rgba(11,18,32,.92); color: var(--white); }
+  .pill-orange { background: var(--orange-600); color: var(--white); }
+  .pill-showcase {
+    background: var(--gray-950); color: var(--white);
+    font: var(--t-eyebrow);
+    letter-spacing: .14em; text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: var(--radius-full);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .pill-showcase::before {
+    content: ""; width: 5px; height: 5px;
+    background: var(--yellow-400); border-radius: 50%;
+  }
+
+  .icon-btn {
+    position: absolute; top: var(--space-3);
+    width: 32px; height: 32px;
+    background: rgba(255,255,255,.95);
+    border-radius: var(--radius-full);
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(8px);
+    z-index: 2;
+  }
+  .icon-save { right: var(--space-3); }
+  .icon-more { right: calc(var(--space-3) + 40px); }
+  .more-dots { display: flex; gap: 3px; }
+  .more-dots span { width: 4px; height: 4px; border-radius: 50%; background: var(--gray-950); }
+  .carousel-dots {
+    position: absolute; bottom: var(--space-3); left: 50%;
+    transform: translateX(-50%);
+    display: flex; gap: 5px;
+    z-index: 2;
+  }
+  .carousel-dots span { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.55); }
+  .carousel-dots span.active { background: var(--white); }
+
+  /* CORE DATA — 12px padding · 2px between rows */
+  .core { padding: var(--space-3) var(--space-3) 0; }
+  .core-price-row { display: flex; align-items: baseline; gap: var(--space-2); flex-wrap: wrap; }
+  .core-price { font: var(--t-h-sm); }
+  .core-price-sfx { font: var(--t-body); color: var(--text-secondary); margin-left: -4px; }
+  /* Strike-out previous price — collocated with current price for ambient price-drop signal */
+  .core-price-was {
+    font: 700 18px/1.15 var(--font-head);
+    color: var(--text-tertiary);
+    text-decoration: line-through;
+    text-decoration-thickness: 1.5px;
+    text-decoration-color: var(--gray-400);
+    letter-spacing: -.01em;
+    margin-right: 2px;
+  }
+  .core-fees {
+    font: var(--t-body-sm-bold);
+    color: var(--action);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    margin-left: auto;
+  }
+  .core-beds { font: var(--t-body-sm); color: var(--text-primary); margin-top: 2px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .core-beds strong { font-weight: 700; }
+  .core-beds .sep { color: var(--gray-300); }
+  .core-beds .ptype { color: var(--text-secondary); }
+  .core-addr {
+    font: var(--t-body-sm);
+    color: var(--text-secondary);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* PREMIUM EXPRESSION (zone 3) */
+  .premium {
+    margin: var(--space-3) var(--space-3) 0;
+    padding: var(--space-3);
+    border-radius: var(--radius-md);
+    position: relative;
+    border: 1px solid var(--border);
+  }
+  .premium.is-showcase {
+    background: var(--gray-950);
+    color: var(--white);
+    border-color: var(--gray-950);
+  }
+  .premium.is-buyability,
+  .premium.is-rapd {
+    /* "Value over flash" — strip the box. The value statement IS the content. */
+    background: transparent;
+    border: none;
+    border-top: 1px solid var(--border);
+    box-shadow: none;
+    border-radius: 0;
+    padding: 10px 0 0;
+  }
+  .premium-icon { display: inline-flex; align-items: center; color: var(--blue-600); flex-shrink: 0; }
+  .premium-rare { color: var(--text-tertiary); }
+  .premium-head { display: flex; align-items: center; gap: var(--space-2); }
+  .premium-mark { font: var(--t-eyebrow); text-transform: uppercase; letter-spacing: .12em; display: inline-flex; align-items: center; gap: 5px; }
+  .premium.is-showcase .premium-mark { color: var(--white); }
+  .premium.is-showcase .premium-mark::before { content: ""; width: 5px; height: 5px; background: var(--yellow-400); border-radius: 50%; }
+  .premium.is-buyability .premium-mark { color: var(--blue-600); }
+  .premium.is-buyability .premium-mark svg { color: var(--blue-600); }
+  .premium-meta { font: var(--t-caption); margin-left: auto; }
+  .premium.is-showcase .premium-meta { color: rgba(255,255,255,.7); }
+  .premium.is-buyability .premium-meta { color: var(--text-tertiary); }
+
+  .premium-line { font: var(--t-body-bold); margin-top: 6px; }
+  /* BuyAbility + RAPD line matches Personalization-row type (14px regular + selective bold) */
+  .premium.is-buyability .premium-line,
+  .premium.is-rapd .premium-line {
+    font: var(--t-body-sm);
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  }
+  .premium.is-showcase .premium-line { color: var(--white); }
+  .premium-why { font: var(--t-caption); margin-top: 4px; }
+  .premium.is-showcase .premium-why { color: rgba(255,255,255,.7); }
+  .premium.is-buyability .premium-why { color: var(--text-tertiary); }
+
+  .premium-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: var(--space-2); }
+  .chip {
+    font: var(--t-body-sm-bold);
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .premium.is-showcase .chip { background: rgba(255,255,255,.10); color: var(--white); }
+  .premium.is-buyability .chip { background: var(--blue-50); color: var(--blue-700); }
+
+  /* BuyAbility meter */
+  .ba-meter { margin-top: 10px; height: 6px; border-radius: var(--radius-full); background: var(--blue-50); position: relative; overflow: hidden; }
+  .ba-meter-fill { position: absolute; left: 0; top: 0; height: 100%; background: var(--blue-600); border-radius: var(--radius-full); }
+  .ba-meter-labels { display: flex; justify-content: space-between; margin-top: 4px; font: var(--t-caption); color: var(--text-tertiary); }
+  .ba-meter-labels strong { color: var(--text-primary); font-weight: 700; }
+
+  /* PERSONALIZATION ROW (zone 4)
+     Per ZxD: no tinted full backgrounds. Accent goes into the icon
+     and an optional left-rail. The line itself sits on white. */
+  .pers {
+    margin: var(--space-3) var(--space-3) 0;
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--border);
+    position: relative;
+  }
+  .pers-line { font: var(--t-body-sm); color: var(--text-primary); display: flex; align-items: flex-start; gap: 6px; flex-wrap: wrap; }
+  .pers-line strong { font-weight: 700; }
+  .pers-why { font: var(--t-caption); color: var(--text-tertiary); margin-top: 4px; }
+  .pers-why em { font-style: normal; font-weight: 700; color: var(--text-secondary); margin-right: 4px; }
+  .pers-icon { display: inline-flex; align-items: center; flex-shrink: 0; margin-top: 1px; }
+
+  .pers.v-quickscan .pers-icon { color: var(--acc-quickscan); }
+  .pers.v-cost      .pers-icon { color: var(--acc-cost); }
+  .pers.v-pet       .pers-icon { color: var(--acc-pet); }
+  .pers.v-avail     .pers-icon { color: var(--acc-avail); }
+  .pers.v-commute   .pers-icon { color: var(--acc-commute); }
+  .pers.v-lease     .pers-icon { color: var(--acc-lease); }
+  .pers.v-amenity   .pers-icon { color: var(--acc-amenity); }
+  .pers.v-voyager   .pers-icon { color: var(--acc-voyager); }
+
+  /* Icon cluster mode */
+  .pers-icons { display: flex; gap: var(--space-3); padding: 2px 0; align-items: center; flex-wrap: wrap; }
+  .ic { display: inline-flex; flex-direction: column; align-items: center; gap: 4px; }
+  .ic svg { color: var(--acc-amenity); }
+  .ic-label { font: 500 10px/1.2 var(--font-body); color: var(--text-secondary); letter-spacing: .02em; }
+
+  /* Voyager state — white bg + Purple500 left rail + eyebrow tag, no light bg */
+  .pers.v-voyager { box-shadow: inset 3px 0 0 var(--purple-500); padding-left: var(--space-3); margin-left: 0; }
+  .voyager-eyebrow {
+    font: var(--t-eyebrow);
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: var(--purple-500);
+    margin-bottom: 5px;
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .voyager-eyebrow::before {
+    content: ""; width: 6px; height: 6px;
+    border-radius: 50%; background: var(--purple-500);
+    box-shadow: 0 0 0 3px rgba(123,44,191,.18);
+  }
+
+  /* ════════════════════════════════════════════════════════
+     DECISIONS
+     ════════════════════════════════════════════════════════ */
+  .decisions {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-8);
+  }
+  .decisions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-3);
+  }
+  .decision {
+    padding: var(--space-4);
+    background: var(--surface);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    box-shadow: inset 3px 0 0 var(--blue-600);
+    padding-left: calc(var(--space-4) + 4px);
+  }
+  /* Focal decision — Quality Gates — teal expressive moment */
+  .decision.is-focal {
+    background: var(--teal-600);
+    color: var(--white);
+    border-color: var(--teal-600);
+    box-shadow: var(--elev-2);
+  }
+  .decision.is-focal .decision-num,
+  .decision.is-focal .decision-title,
+  .decision.is-focal .decision-body { color: var(--white); }
+  .decision.is-focal .gate {
+    background: rgba(255,255,255,.16);
+    color: var(--white);
+    border: 1px solid rgba(255,255,255,.24);
+  }
+
+  .decision-num { font: var(--t-eyebrow); text-transform: uppercase; letter-spacing: .12em; color: var(--blue-600); margin-bottom: 4px; }
+  .decision-title { font: var(--t-body-bold); margin-bottom: 6px; }
+  .decision-body { font: var(--t-body-sm); color: var(--text-secondary); }
+  .decision-body code { font: 600 12px/1.4 ui-monospace, SFMono-Regular, monospace; background: var(--gray-100); padding: 2px 6px; border-radius: 4px; }
+
+  .gates { display: flex; gap: 6px; flex-wrap: wrap; margin-top: var(--space-3); }
+  .gate {
+    font: var(--t-eyebrow);
+    text-transform: uppercase; letter-spacing: .08em;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    background: var(--green-50);
+    color: var(--green-600);
+  }
+
+  /* Responsive */
+  @media (max-width: 1180px) {
+    .hierarchy-layout { grid-template-columns: 1fr; gap: var(--space-6); }
+    .hierarchy-card-wrap { max-width: 375px; margin: 0 auto; }
+    .inputs-layout { grid-template-columns: 1fr; justify-items: center; gap: var(--space-6); }
+    .cluster-col { width: 100%; max-width: 375px; }
+    .diagram-sub { margin-left: 0; text-align: left; max-width: 100%; }
+  }
+  @media (max-width: 640px) {
+    .hdr { padding: var(--space-3) var(--space-4); }
+    .section { padding-left: var(--space-4); padding-right: var(--space-4); }
+    .diagram-card { padding: var(--space-4); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════════════════ -->
+<header class="hdr">
+  <a class="hdr-logo" aria-label="Zillow">
+    <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect width="28" height="28" rx="6" fill="#1F4DFF"/><path d="M7 19V11l7-5 7 5v8a1 1 0 0 1-1 1h-4v-5h-4v5H8a1 1 0 0 1-1-1z" fill="#fff"/></svg>
+  </a>
+  <div class="hdr-titles">
+    <h1>Rentals Rich List Cards — v1.0 State Matrix</h1>
+    <div class="sub">v1 anatomy · 10 states · Figma reference for Phase&nbsp;5 scope-locked synthesis</div>
+  </div>
+  <div class="hdr-right">
+    <span class="vbadge">v1.0 · Draft 16</span>
+    <span class="hdr-meta">2026-05-15</span>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════
+     ANATOMY KEY
+     ═══════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-head">
+    <div class="section-eyebrow">Visual key</div>
+    <h2 class="section-title">v1.0 anatomy — content hierarchy &amp; data strategy</h2>
+    <p class="section-sub">Two views below. The first reads the card body as a 5-level priority stack. The second maps every data input that feeds the card and the content-strategy rules that govern when each one appears.</p>
+  </div>
+
+  <div class="anatomy">
+
+    <!-- ─────────────────────────────────────────────
+         DIAGRAM 1 · Content hierarchy
+         ───────────────────────────────────────────── -->
+    <div class="diagram-card">
+      <div class="diagram-head">
+        <span class="diagram-eyebrow">Diagram 1</span>
+        <h3 class="diagram-title">Content hierarchy — Primary → Quinary</h3>
+        <p class="diagram-sub">How the card body maps to a 5-level priority stack. Bar order = reading order.</p>
+      </div>
+
+      <div class="hierarchy-layout">
+        <div class="hierarchy-card-wrap">
+          <div class="card">
+            <div class="media media-img-1">
+              <div class="badges-top"><span class="pill pill-light">Supporting text</span></div>
+              <div class="icon-btn icon-save"><svg width="16" height="16" fill="none" stroke="#0B1220" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+              <div class="carousel-dots"><span class="active"></span><span></span><span></span><span></span><span></span></div>
+            </div>
+            <div class="hierarchy-bars">
+              <div class="h-bar b-primary"><span class="h-bar-num">P1</span>Primary</div>
+              <div class="h-bar b-secondary"><span class="h-bar-num">P2</span>Secondary</div>
+              <div class="h-bar b-tertiary"><span class="h-bar-num">P3</span>Tertiary</div>
+              <div class="h-bar b-quaternary"><span class="h-bar-num">P4</span>Quaternary</div>
+              <div class="h-bar b-quinary"><span class="h-bar-num">P5</span>Quinary</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="h-key">
+          <div class="h-key-row">
+            <div class="h-key-swatch b-primary"></div>
+            <div class="h-key-label">Primary</div>
+            <div class="h-key-desc">Monthly rent · included fees. <strong>Required, always visible.</strong> Set in Object Sans Heavy.</div>
+          </div>
+          <div class="h-key-row">
+            <div class="h-key-swatch b-secondary"></div>
+            <div class="h-key-label">Secondary</div>
+            <div class="h-key-desc">Bed · bath · sqft · dwelling type. <strong>Required, always visible.</strong> Pipe-separated.</div>
+          </div>
+          <div class="h-key-row">
+            <div class="h-key-swatch b-tertiary"></div>
+            <div class="h-key-label">Tertiary</div>
+            <div class="h-key-desc">Address — street, city, state. <strong>Required, always visible.</strong> Truncates on overflow.</div>
+          </div>
+          <div class="h-key-row">
+            <div class="h-key-swatch b-quaternary"></div>
+            <div class="h-key-label">Quaternary</div>
+            <div class="h-key-desc">Premium expression — Showcase OR BuyAbility. <strong>Collapses on ~95% of cards.</strong></div>
+          </div>
+          <div class="h-key-row">
+            <div class="h-key-swatch b-quinary"></div>
+            <div class="h-key-label">Quinary</div>
+            <div class="h-key-desc">Personalization signal — single line, polymorphic. <strong>Always present</strong> (falls back to property-derived content when no V1 cluster signal qualifies).</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────────
+         DIAGRAM 2 · Data inputs & content strategy
+         ───────────────────────────────────────────── -->
+    <div class="diagram-card">
+      <div class="diagram-head">
+        <span class="diagram-eyebrow">Diagram 2</span>
+        <h3 class="diagram-title">Data inputs &amp; content strategy</h3>
+        <p class="diagram-sub">Each cluster names the card region it annotates. Color reinforces the mapping. The card stays clean — no overlays.</p>
+      </div>
+
+      <div class="inputs-layout">
+
+        <!-- LEFT clusters -->
+        <div class="cluster-col left">
+          <div class="cluster-group c-marketing">
+            <div class="cluster-title">Marketing details</div>
+            <div class="cluster-target"><strong>Media · top-left badges</strong></div>
+            <div class="chip-stack">
+              <span class="input-chip">Apply Instantly</span>
+              <span class="input-chip">Showcase · listing-paid</span>
+            </div>
+            <div class="cluster-note"><strong>Limit 1 badge per media.</strong> Two v1 demotions: Time on Zillow → Personalization row freshness slot; Special Offer → Financial cluster (collocates with the price).</div>
+          </div>
+
+          <div class="cluster-group c-premium">
+            <div class="cluster-title">Premium expression</div>
+            <div class="cluster-target"><strong>Zone 3 · Premium row</strong></div>
+            <div class="chip-stack">
+              <span class="input-chip">Showcase · listing-paid</span>
+              <span class="input-chip">Rentals Ad Package Differentiation</span>
+              <span class="input-chip">BuyAbility · data-derived</span>
+            </div>
+            <div class="cluster-note"><strong>Showcase XOR BuyAbility</strong> — never both. Zone collapses on ~95% of cards. Distinct visual treatments: Showcase = dark/gold, BuyAbility = blue mark + meter.</div>
+          </div>
+
+          <div class="cluster-group c-personalization">
+            <div class="cluster-title">Personalization fields</div>
+            <div class="cluster-target"><strong>Zone 4 · Personalization row</strong></div>
+            <div class="chip-stack">
+              <span class="input-chip">Cost match</span>
+              <span class="input-chip">Pet match</span>
+              <span class="input-chip">Availability</span>
+              <span class="input-chip">Commute</span>
+              <span class="input-chip">Lease / Eligibility</span>
+              <span class="input-chip">Amenity cluster · icons</span>
+              <span class="input-chip">Voyager active</span>
+              <span class="input-chip">Property-derived · fallback</span>
+            </div>
+            <div class="cluster-note"><strong>Single signal per card.</strong> Falls through priority chain. Every signal must clear 4 quality gates — Presence · Reliability · Specificity · Freshness. "Why" caption always visible.</div>
+          </div>
+        </div>
+
+        <!-- CARD (populated, maximal) — colored edge rails mirror each cluster -->
+        <div class="inputs-card-wrap">
+          <div class="card" style="width:375px;">
+            <!-- All rails sit on card level, aligned to a single x-axis outside the card edge -->
+            <span class="region-rail rail-marketing"></span>
+            <span class="region-rail rail-actions"></span>
+            <span class="region-rail rail-financial"></span>
+            <span class="region-rail rail-dwelling"></span>
+            <span class="region-rail rail-premium"></span>
+            <span class="region-rail rail-personalization"></span>
+
+            <div class="media media-img-1">
+              <div class="badges-top"><span class="pill pill-light">Apply instantly</span></div>
+              <div class="icon-btn icon-more"><div class="more-dots"><span></span><span></span><span></span></div></div>
+              <div class="icon-btn icon-save"><svg width="16" height="16" fill="none" stroke="#0B1220" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+              <div class="carousel-dots"><span class="active"></span><span></span><span></span><span></span><span></span></div>
+            </div>
+            <div class="core">
+              <div class="core-price-row">
+                <span class="core-price-was">$2,495</span><span class="core-price">$2,395</span><span class="core-price-sfx">/mo</span><a class="core-fees" href="#">Included fees</a>
+              </div>
+              <div class="core-beds">
+                <strong>2</strong> bed <span class="sep">|</span> <strong>2</strong> bath <span class="sep">|</span> <strong>980</strong> sqft <span class="sep">|</span> <span class="ptype">apartment</span>
+              </div>
+              <div class="core-addr">1442 N Cleveland Ave, Chicago IL 60610</div>
+            </div>
+            <div class="premium is-rapd">
+              <div class="premium-line">
+                <span class="premium-icon"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="8" r="2.2" fill="currentColor"/></svg></span>
+                <span><strong>Patio</strong> <span class="premium-rare">• Rare in Lakeview (12%)</span></span>
+              </div>
+            </div>
+            <div class="pers v-pet">
+              <div class="pers-line">
+                <span class="pers-icon"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><circle cx="4" cy="6" r="1.5"/><circle cx="8" cy="4" r="1.5"/><circle cx="12" cy="6" r="1.5"/><circle cx="3" cy="10" r="1.2"/><circle cx="13" cy="10" r="1.2"/><path d="M8 8c-2.5 0-4 2-4 4 0 1 .8 2 2 2h4c1.2 0 2-1 2-2 0-2-1.5-4-4-4z"/></svg></span>
+                <span><strong>Large dogs okay</strong> · yard + wash station</span>
+              </div>
+            </div>
+            <div class="card-foot"></div>
+          </div>
+        </div>
+
+        <!-- RIGHT clusters -->
+        <div class="cluster-col right">
+          <div class="cluster-group c-actions">
+            <div class="cluster-title">Core actions</div>
+            <div class="cluster-target"><strong>Media · top-right buttons</strong></div>
+            <div class="chip-stack">
+              <span class="input-chip">Save (♡)</span>
+              <span class="input-chip">More menu (•••)</span>
+              <div class="chip-substack">
+                <span class="input-chip input-chip-sub">Share</span>
+                <span class="input-chip input-chip-sub">Hide</span>
+                <span class="input-chip input-chip-sub">Compare</span>
+                <span class="input-chip input-chip-sub">See similar</span>
+              </div>
+            </div>
+            <div class="cluster-note">Always visible · no hover required. <strong>More menu</strong> expands to reveal 4 nested actions.</div>
+          </div>
+
+          <div class="cluster-group c-financial">
+            <div class="cluster-title">Financial</div>
+            <div class="cluster-target"><strong>Zone 2 · Price row</strong></div>
+            <div class="chip-stack">
+              <span class="input-chip">Monthly cost (rent)</span>
+              <span class="input-chip">Price drop</span>
+              <span class="input-chip">Special offer · concession</span>
+              <span class="input-chip">Included fees · link</span>
+              <span class="input-chip">BuyAbility est. · FS</span>
+              <span class="input-chip">HOA · taxes · FS</span>
+            </div>
+            <div class="cluster-note"><strong>Collocation rule.</strong> All price-related signals sit in the price row. Price drop renders as a strike-through previous rent next to the current price (see state 01). Special offer renders as an inline concession chip. Frees the Personalization row to carry non-price content.</div>
+          </div>
+
+          <div class="cluster-group c-dwelling">
+            <div class="cluster-title">Dwelling type</div>
+            <div class="cluster-target"><strong>Zone 2 · Beds/baths row</strong></div>
+            <div class="chip-stack">
+              <span class="input-chip">Apartment</span>
+              <span class="input-chip">Townhouse</span>
+              <span class="input-chip">Condo / Co-op</span>
+              <span class="input-chip">House</span>
+              <span class="input-chip">Room for rent</span>
+            </div>
+            <div class="cluster-note">Required field · single value per listing. Appended to the beds row.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     STATE MATRIX
+     ═══════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-head">
+    <div class="section-eyebrow">State matrix</div>
+    <h2 class="section-title">10 states · review side-by-side</h2>
+    <p class="section-sub">Each card carries the same anatomy. The Personalization row content and the Premium zone's presence are what vary. Mobile reference width ~375px. Tone: factual, decision-relevant numbers, never flowery.</p>
+  </div>
+
+  <div class="grid">
+
+    <!-- ─────────────────────────────────────────────────
+         STATE 1 — Quick-scan (95% case)
+         ───────────────────────────────────────────────── -->
+    <div class="state-col">
+      <div class="state-head">
+        <span class="state-num-tag">01 · Quick-scan</span>
+        <div class="state-title">No V1 cluster signal — 95% case</div>
+        <div class="state-note">Price-drop collocated with price (proposed). Personalization row carries property-derived content. Premium zone collapsed.</div>
+      </div>
+      <div class="card">
+        <div class="media media-img-1">
+          <div class="badges-top"><span class="pill pill-light">Apply instantly</span></div>
+          <div class="icon-btn icon-more"><div class="more-dots"><span></span><span></span><span></span></div></div>
+          <div class="icon-btn icon-save"><svg width="16" height="16" fill="none" stroke="#0B1220" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+          <div class="carousel-dots"><span class="active"></span><span></span><span></span><span></span><span></span></div>
+        </div>
+        <div class="core">
+          <div class="core-price-row"><span class="core-price-was">$2,550</span><span class="core-price">$2,400</span><span class="core-price-sfx">/mo</span><a class="core-fees" href="#">Included fees</a></div>
+          <div class="core-beds"><strong>1</strong> bed <span class="sep">|</span> <strong>1</strong> bath <span class="sep">|</span> <strong>750</strong> sqft <span class="sep">|</span> <span class="ptype">apartment</span></div>
+          <div class="core-addr">425 N Wabash Ave #2401, Chicago IL 60611</div>
+        </div>
+        <div class="pers v-quickscan">
+          <div class="pers-line">
+            <span class="pers-icon"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="8" r="2.2" fill="currentColor"/></svg></span>
+            <span>Rare in this area: <strong>floor-to-ceiling windows</strong></span>
+          </div>
+          <div class="pers-why"><em>Listing</em>Top 5% of River North 1BRs · derived from listing amenities</div>
+        </div>
+        <div class="card-foot"></div>
+      </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────────────
+         STATE 2 — Personalized · Cost
+         ───────────────────────────────────────────────── -->
+    <div class="state-col">
+      <div class="state-head">
+        <span class="state-num-tag personalized">02 · Personalized — Cost</span>
+        <div class="state-title">Budget-fit narrative</div>
+        <div class="state-note">Triggers when saved max budget &gt; listing rent. Hard number wins over soft framing.</div>
+      </div>
+      <div class="card">
+        <div class="media media-img-2">
+          <div class="badges-top"><span class="pill pill-light">Apply instantly</span></div>
+          <div class="icon-btn icon-more"><div class="more-dots"><span></span><span></span><span></span></div></div>
+          <div class="icon-btn icon-save"><svg width="16" height="16" fill="none" stroke="#0B1220" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+          <div class="carousel-dots"><span class="active"></span><span></span><span></span><span></span><span></span></div>
+        </div>
+        <div class="core">
+          <div class="core-price-row"><span class="core-price">$1,895</span><span class="core-price-sfx">/mo</span><a class="core-fees" href="#">Included fees</a></div>
+          <div class="core-beds"><strong>Studio</strong> <span class="sep">|</span> <strong>1</strong> bath <span class="sep">|</span> <strong>520</strong> sqft <span class="sep">|</span> <span class="ptype">apartment</span></div>
+          <div class="core-addr">1620 W Belmont Ave #3F, Chicago IL 60657</div>
+        </div>
+        <div class="pers v-cost">
+          <div class="pers-line">
+            <span class="pers-icon"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8.6 11.6v.9H7.4v-.85c-1.2-.15-2.1-.85-2.2-2.15h1.45c.05.55.45 1 1.45 1 .9 0 1.35-.4 1.35-.95 0-.5-.25-.85-1.4-1.15-1.85-.45-2.7-1.1-2.7-2.35 0-1.05.8-1.8 1.95-2v-.9H8.6v.9c1.15.2 1.95.95 1.95 1.95H9.1c-.05-.55-.45-.95-1.2-.95-.75 0-1.15.35-1.15.85 0 .45.3.75 1.4 1.05 1.85.5 2.7 1.15 2.7 2.45 0 1.05-.8 1.85-2.25 2.05z"/></svg></span>
+            <span>Stays under your <strong>$2,000</strong> budget</span>
+          </div>
+          <div class="pers-why"><em>Why</em>You set $2,000 max · $105 headroom</div>
+        </div>
+        <div class="card-foot"></div>
+      </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────────────
+         STATE 3 — Personalized · Pet
+         ───────────────────────────────────────────────── -->
+    <div class="state-col">
+      <div class="state-head">
+        <span class="state-num-tag personalized">03 · Personalized — Pet</span>
+        <div class="state-title">Pet-policy match</div>
+        <div class="state-note">Three signals chained: policy · fee · pet amenity. Decision-relevant numbers only.</div>
+      </div>
+      <div class="card">
+        <div class="media media-img-3">
+          <div class="badges-top"><span class="pill pill-light">Apply instantly</span></div>
+          <div class="icon-btn icon-more"><div class="more-dots"><span></span><span></span><span></span></div></div>
+          <div class="icon-btn icon-save"><svg width="16" height="16" fill="none" stroke="#0B1220" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+          <div class="carousel-dots"><span class="active"></span><span></span><span></span><span></span><span></span></div>
+        </div>
+        <div class="core">
+          <div class="core-price-row"><span class="core-price">$2,200</span><span class="core-price-sfx">/mo</span><a class="core-fees" href="#">Included fees</a></div>
+          <div class="core-beds"><strong>1</strong> bed <span class="sep">|</span> <strong>1</strong> bath <span class="sep">|</span> <strong>820</strong> sqft <span class="sep">|</span> <span class="ptype">townhouse</span></div>
+          <div class="core-addr">833 N Hudson Ave, Chicago IL 60610</div>
+        </div>
+        <div class="pers v-pet">
+          <div class="pers-line">
+            <span class="pers-icon"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><circle cx="4" cy="6" r="1.5"/><circle cx="8" cy="4" r="1.5"/><circle cx="12" cy="6" r="1.5"/><circle cx="3" cy="10" r="1.2"/><circle cx="13" cy="10" r="1.2"/><path d="M8 8c-2.5 0-4 2-4 4 0 1 .8 2 2 2h4c1.2 0 2-1 2-2 0-2-1.5-4-4-4z"/></svg></span>
+            <span>Dogs up to <strong>50 lb</strong> · <strong>$35</strong>/mo · yard + wash station</span>
+          </div>
+          <div class="pers-why"><em>Why</em>You filter for dog-friendly · matches your saved pet profile</div>
+        </div>
+        <div class="card-foot"></div>
+      </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────────────
+         STATE 4 — Personalized · Availability
+         Cross-LOB note: For Sale variant would surface days-on-market /
+         close-by-date pacing instead of move-in match.
+         ───────────────────────────────────────────────── -->
+    <div class="state-col">
+      <div class="state-head">
+        <span class="state-num-tag personalized">04 · Personalized — Availability</span>
+        <div class="state-title">Move-in date match</div>
+        <div class="state-note">For Sale would surface days-on-market or close-by-date pacing instead.</div>
+      </div>
+      <div class="card">
+        <div class="media media-img-4">
+          <div class="badges-top"><span class="pill pill-light">Apply instantly</span></div>
+          <div class="icon-btn icon-more"><div class="more-dots"><span></span><span></span><span></span></div></div>
+          <div class="icon-btn icon-save"><svg width="16" height="16" fill="none" stroke="#0B1220" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+          <div class="carousel-dots"><span class="active"></span><span></span><span></span><span></span><span></span></div>
+        </div>
+        <div class="core">
+          <div class="core-price-row"><span class="core-price">$2,850</span><span class="core-price-sfx">/mo</span><a class="core-fees" href="#">Included fees</a></div>
+          <div class="core-beds"><strong>2</strong> bed <span class="sep">|</span> <strong>2</strong> bath <span class="sep">|</span> <strong>1,150</strong> sqft <span class="sep">|</span> <span class="ptype">apartment</span></div>
+          <div class="core-addr">2024 N Halsted St #4B, Chicago IL 60614</div>
+        </div>
+        <div class="pers v-avail">
+          <div class="pers-line">
+            <span class="pers-icon"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="2" y="3.5" width="12" height="10.5" rx="1.5"/><line x1="2" y1="7" x2="14" y2="7"/><line x1="5" y1="2" x2="5" y2="5"/><line x1="11" y1="2" x2="11" y2="5"/></svg></span>
+            <span>Available <strong>Aug 1</strong> · matches your Sep move-in</span>
+          </div>
+          <div class="pers-why"><em>Why</em>You target Sep 15 · 6-week lead time</div>
+        </div>
+        <div class="card-foot"></div>
+      </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────────────
+         STATE 5 — Personalized · Commute
+         Cross-LOB note: works identically for For Sale; commute is LOB-agnostic.
+         ───────────────────────────────────────────────── -->
+    <div class="state-col">
+      <div class="state-head">
+        <span class="state-num-tag personalized">05 · Personalized — Commute</span>
+        <div class="state-title">Drive · transit pair</div>
+        <div class="state-note">Both modes shown side-by-side. Why-line names the saved destination.</div>
+      </div>
+      <div class="card">
+        <div class="media media-img-5">
+          <div class="badges-top"><span class="pill pill-light">Apply instantly</span></div>
+          <div class="icon-btn icon-more"><div class="more-dots"><span></span><span></span><span></span></div></div>
+          <div class="icon-btn icon-save"><svg width="16" height="16" fill="none" stroke="#0B1220" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+          <div class="carousel-dots"><span class="active"></span><span></span><span></span><span></span><span></span></div>
+        </div>
+        <div class="core">
+          <div class="core-price-row"><span class="core-price">$1,750</span><span class="core-price-sfx">/mo</span><a class="core-fees" href="#">Included fees</a></div>
+          <div class="core-beds"><strong>1</strong> bed <span class="sep">|</span> <strong>1</strong> bath <span class="sep">|</span> <strong>680</strong> sqft <span class="sep">|</span> <span class="ptype">apartment</span></div>
+          <div class="core-addr">4520 N Sheridan Rd #8C, Chicago IL 60640</div>
+        </div>
+        <div class="pers v-commute">
+          <div class="pers-line">
+            <span class="pers-icon"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3 10v2a.5.5 0 00.5.5h1A.5.5 0 005 12v-1h6v1a.5.5 0 00.5.5h1a.5.5 0 00.5-.5v-2l-1.5-4A1 1 0 0010.5 5h-5a1 1 0 00-1 .9L3 10zm2.5-4h5l1 3h-7l1-3zm-.5 4.5a.75.75 0 11-.001-1.501A.75.75 0 015 10.5zm6 0a.75.75 0 11.001-1.501A.75.75 0 0111 10.5z"/></svg></span>
+            <span><strong>22 min</strong> drive · <strong>41 min</strong> transit</span>
+          </div>
+          <div class="pers-why"><em>Why</em>To your saved work address · West Loop</div>
+        </div>
+        <div class="card-foot"></div>
+      </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────────────
+         STATE 6 — Personalized · Lease/Eligibility
+         Cross-LOB note: For Sale variant maps to pre-approval / financing readiness.
+         ───────────────────────────────────────────────── -->
+    <div class="state-col">
+      <div class="state-head">
+        <span class="state-num-tag personalized">06 · Personalized — Lease/Eligibility</span>
+        <div class="state-title">Acceptance criteria match</div>
+        <div class="state-note">For Sale variant maps to pre-approval / financing readiness.</div>
+      </div>
+      <div class="card">
+        <div class="media media-img-6">
+          <div class="badges-top"><span class="pill pill-light">Apply instantly</span></div>
+          <div class="icon-btn icon-more"><div class="more-dots"><span></span><span></span><span></span></div></div>
+          <div class="icon-btn icon-save"><svg width="16" height="16" fill="none" stroke="#0B1220" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+          <div class="carousel-dots"><span class="active"></span><span></span><span></span><span></span><span></span></div>
+        </div>
+        <div class="core">
+          <div class="core-price-row"><span class="core-price">$1,650</span><span class="core-price-sfx">/mo</span><a class="core-fees" href="#">Included fees</a></div>
+          <div class="core-beds"><strong>1</strong> bed <span class="sep">|</span> <strong>1</strong> bath <span class="sep">|</span> <strong>700</strong> sqft <span class="sep">|</span> <span class="ptype">apartment</span></div>
+          <div class="core-addr">5829 N Winthrop Ave #2A, Chicago IL 60660</div>
+        </div>
+        <div class="pers v-lease">
+          <div class="pers-line">
+            <span class="pers-icon"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="10.5" cy="5.5" r="2.5"/><circle cx="10.5" cy="5.5" r=".7" fill="currentColor"/><path d="M8.6 7.4L3 13v1.5h1.5L6 13v-1.5h1.5l1-1"/></svg></span>
+            <span>Vouchers accepted · <strong>600+</strong> credit OK</span>
+          </div>
+          <div class="pers-why"><em>Why</em>Matches your eligibility filters · no income multiplier</div>
+        </div>
+        <div class="card-foot"></div>
+      </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────────────
+         STATE 7 — Personalized · Icon cluster (Amenity-match)
+         ───────────────────────────────────────────────── -->
+    <div class="state-col">
+      <div class="state-head">
+        <span class="state-num-tag personalized">07 · Personalized — Icon cluster</span>
+        <div class="state-title">Amenity-match · icons only</div>
+        <div class="state-note">Polymorphic row's second mode: no narrative, just matched amenities.</div>
+      </div>
+      <div class="card">
+        <div class="media media-img-7">
+          <div class="badges-top"><span class="pill pill-light">Apply instantly</span></div>
+          <div class="icon-btn icon-more"><div class="more-dots"><span></span><span></span><span></span></div></div>
+          <div class="icon-btn icon-save"><svg width="16" height="16" fill="none" stroke="#0B1220" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+          <div class="carousel-dots"><span class="active"></span><span></span><span></span><span></span><span></span></div>
+        </div>
+        <div class="core">
+          <div class="core-price-row"><span class="core-price">$2,650</span><span class="core-price-sfx">/mo</span><a class="core-fees" href="#">Included fees</a></div>
+          <div class="core-beds"><strong>1</strong> bed <span class="sep">|</span> <strong>1</strong> bath <span class="sep">|</span> <strong>790</strong> sqft <span class="sep">|</span> <span class="ptype">apartment</span></div>
+          <div class="core-addr">1212 N LaSalle Dr #1407, Chicago IL 60610</div>
+        </div>
+        <div class="pers v-amenity">
+          <div class="pers-icons">
+            <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="1.5"/><circle cx="12" cy="13" r="4"/><circle cx="8" cy="6.5" r=".8" fill="currentColor"/></svg><span class="ic-label">W/D</span></div>
+            <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="7" cy="9" r="1.8"/><circle cx="12" cy="6" r="1.8"/><circle cx="17" cy="9" r="1.8"/><circle cx="5" cy="14" r="1.4"/><circle cx="19" cy="14" r="1.4"/><path d="M12 12c-3 0-5 2.5-5 5 0 1.3 1 2 2.4 2h5.2c1.4 0 2.4-.7 2.4-2 0-2.5-2-5-5-5z"/></svg><span class="ic-label">Pets</span></div>
+            <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 14c2-2 4 0 6 0s4-2 6 0 4 0 6 0M3 18c2-2 4 0 6 0s4-2 6 0 4 0 6 0M3 10c2-2 4 0 6 0s4-2 6 0 4 0 6 0"/></svg><span class="ic-label">Pool</span></div>
+            <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 11h18M9 15.5h2M13 15.5h2"/></svg><span class="ic-label">Parking</span></div>
+            <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="6.5" cy="12" r="2"/><circle cx="17.5" cy="12" r="2"/><path d="M8.5 12h7M10 9v6M14 9v6"/></svg><span class="ic-label">Gym</span></div>
+          </div>
+          <div class="pers-why"><em>Why</em>5 of your saved amenities match this listing</div>
+        </div>
+        <div class="card-foot"></div>
+      </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────────────
+         STATE 8 — Showcase
+         ───────────────────────────────────────────────── -->
+    <div class="state-col">
+      <div class="state-head">
+        <span class="state-num-tag premium">08 · Showcase</span>
+        <div class="state-title">Listing-paid elevation</div>
+        <div class="state-note">Premium zone expanded. Showcase badge on media. 3D tour + floorplan chips.</div>
+      </div>
+      <div class="card is-elev">
+        <div class="media media-img-8">
+          <div class="badges-top"><span class="pill-showcase">Showcase</span></div>
+          <div class="icon-btn icon-more"><div class="more-dots"><span></span><span></span><span></span></div></div>
+          <div class="icon-btn icon-save"><svg width="16" height="16" fill="none" stroke="#0B1220" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+          <div class="carousel-dots"><span class="active"></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        </div>
+        <div class="core">
+          <div class="core-price-row"><span class="core-price">$3,200</span><span class="core-price-sfx">/mo</span><a class="core-fees" href="#">Included fees</a></div>
+          <div class="core-beds"><strong>2</strong> bed <span class="sep">|</span> <strong>2</strong> bath <span class="sep">|</span> <strong>1,340</strong> sqft <span class="sep">|</span> <span class="ptype">condo</span></div>
+          <div class="core-addr">1234 W Randolph St #802, Chicago IL 60607</div>
+        </div>
+        <div class="premium is-showcase">
+          <div class="premium-head"><span class="premium-mark">Showcase</span><span class="premium-meta">7 photos · 3D · plan</span></div>
+          <div class="premium-line">Floor-to-ceiling windows · in-unit W/D · skyline views</div>
+          <div class="premium-why"><em>Why</em>Verified listing · richer media set</div>
+          <div class="premium-chips">
+            <span class="chip"><svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2 4l6-3 6 3v8l-6 3-6-3V4zm6-1.5L3.5 4.5 8 7l4.5-2.5L8 2.5zM3 5.5v6l4.5 2.25v-6L3 5.5zm6 8.25L13.5 11.5v-6L9 7.75v6z"/></svg> 3D tour</span>
+            <span class="chip"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="2" y="2" width="12" height="12"/><line x1="2" y1="8" x2="14" y2="8"/><line x1="8" y1="2" x2="8" y2="14"/></svg> Floor plan</span>
+            <span class="chip">Pet-friendly</span>
+          </div>
+        </div>
+        <div class="pers v-quickscan">
+          <div class="pers-line">
+            <span class="pers-icon"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="8" r="2.2" fill="currentColor"/></svg></span>
+            <span>Rare in this area: <strong>private rooftop</strong></span>
+          </div>
+          <div class="pers-why"><em>Listing</em>Top 3% of West Loop · derived from listing amenities</div>
+        </div>
+        <div class="card-foot"></div>
+      </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────────────
+         STATE 9 — BuyAbility
+         Cross-LOB note: this IS the For Sale variant of zone 3. A "RentAbility"
+         analog could surface in this slot for Rentals when the data product ships.
+         ───────────────────────────────────────────────── -->
+    <div class="state-col">
+      <div class="state-head">
+        <span class="state-num-tag premium">09 · BuyAbility</span>
+        <div class="state-title">Affordability fit — For Sale</div>
+        <div class="state-note">Cross-LOB state. Same anatomy hosts BuyAbility in zone 3 for For Sale.</div>
+      </div>
+      <div class="card">
+        <div class="media media-img-9">
+          <div class="badges-top"><span class="pill pill-orange">For sale</span></div>
+          <div class="icon-btn icon-more"><div class="more-dots"><span></span><span></span><span></span></div></div>
+          <div class="icon-btn icon-save"><svg width="16" height="16" fill="none" stroke="#0B1220" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+          <div class="carousel-dots"><span class="active"></span><span></span><span></span><span></span><span></span></div>
+        </div>
+        <div class="core">
+          <div class="core-price-row"><span class="core-price">$485,000</span><a class="core-fees" href="#">Get pre-qualified</a></div>
+          <div class="core-beds"><strong>2</strong> bed <span class="sep">|</span> <strong>2</strong> bath <span class="sep">|</span> <strong>1,100</strong> sqft <span class="sep">|</span> <span class="ptype">condo</span></div>
+          <div class="core-addr">720 N State St #1208, Chicago IL 60654</div>
+        </div>
+        <div class="premium is-buyability">
+          <div class="premium-line">Within your buying power · <strong>$15K under max</strong></div>
+          <div class="premium-why">$500K cap · 20% down · 6.8% rate · est. $2,380/mo</div>
+          <div class="ba-meter"><div class="ba-meter-fill" style="width: 88%;"></div></div>
+          <div class="ba-meter-labels"><span>$0</span><strong>You · $485K</strong><span>$500K cap</span></div>
+        </div>
+        <div class="pers v-cost">
+          <div class="pers-line">
+            <span class="pers-icon"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8.6 11.6v.9H7.4v-.85c-1.2-.15-2.1-.85-2.2-2.15h1.45c.05.55.45 1 1.45 1 .9 0 1.35-.4 1.35-.95 0-.5-.25-.85-1.4-1.15-1.85-.45-2.7-1.1-2.7-2.35 0-1.05.8-1.8 1.95-2v-.9H8.6v.9c1.15.2 1.95.95 1.95 1.95H9.1c-.05-.55-.45-.95-1.2-.95-.75 0-1.15.35-1.15.85 0 .45.3.75 1.4 1.05 1.85.5 2.7 1.15 2.7 2.45 0 1.05-.8 1.85-2.25 2.05z"/></svg></span>
+            <span>HOA <strong>$485</strong>/mo · taxes <strong>$310</strong>/mo</span>
+          </div>
+          <div class="pers-why"><em>Why</em>All-in $3,175/mo · still under your $3,250 target</div>
+        </div>
+        <div class="card-foot"></div>
+      </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────────────
+         STATE 10 — Voyager-landing
+         Cross-LOB note: For Sale Voyager-landing would surface BuyAbility
+         (state 9 treatment) in zone 3 alongside the active-search eyebrow.
+         ───────────────────────────────────────────────── -->
+    <div class="state-col">
+      <div class="state-head">
+        <span class="state-num-tag voyager">10 · Voyager-landing</span>
+        <div class="state-title">Active-aware state</div>
+        <div class="state-note">User landed from an active Voyager search. Signals pre-populated, surfaced with active-state eyebrow.</div>
+      </div>
+      <div class="card">
+        <div class="media media-img-10">
+          <div class="badges-top"><span class="pill pill-light">Apply instantly</span></div>
+          <div class="icon-btn icon-more"><div class="more-dots"><span></span><span></span><span></span></div></div>
+          <div class="icon-btn icon-save"><svg width="16" height="16" fill="none" stroke="#0B1220" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+          <div class="carousel-dots"><span class="active"></span><span></span><span></span><span></span><span></span></div>
+        </div>
+        <div class="core">
+          <div class="core-price-row"><span class="core-price">$2,150</span><span class="core-price-sfx">/mo</span><a class="core-fees" href="#">Included fees</a></div>
+          <div class="core-beds"><strong>1</strong> bed <span class="sep">|</span> <strong>1</strong> bath <span class="sep">|</span> <strong>740</strong> sqft <span class="sep">|</span> <span class="ptype">apartment</span></div>
+          <div class="core-addr">999 N Lake Shore Dr #11D, Chicago IL 60611</div>
+        </div>
+        <div class="pers v-voyager">
+          <div class="voyager-eyebrow">From your active search</div>
+          <div class="pers-line">
+            <span class="pers-icon"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 3.5l1.5 3 3 .5-2.25 2 .5 3L8 11.5 5.25 13l.5-3L3.5 8l3-.5L8 4.5z"/></svg></span>
+            <span><strong>Hits 4 of 4</strong> Voyager criteria · Gold Coast · &lt;$2,200 · pet-friendly · &lt;30 min to Loop</span>
+          </div>
+          <div class="pers-why"><em>Why</em>Carried from "1bd Gold Coast under $2,200, pets, near Loop" · saved 2 hours ago</div>
+        </div>
+        <div class="card-foot"></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     PHASE 5 DECISIONS ENCODED
+     ═══════════════════════════════════════════════════════ -->
+<section class="section last">
+  <div class="section-head">
+    <div class="section-eyebrow">Encoded in this prototype</div>
+    <h2 class="section-title">Phase 5 decisions — v1.0 scope-locked</h2>
+    <p class="section-sub">What this prototype commits to. Each card above respects all of the below.</p>
+  </div>
+
+  <div class="decisions">
+    <div class="decisions-grid">
+      <div class="decision">
+        <div class="decision-num">D1 · Anatomy</div>
+        <div class="decision-title">4 zones, fixed order</div>
+        <div class="decision-body">Media → Core → Premium → Personalization. Premium collapses when absent; the other three are always present.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-num">D2 · Polymorphism</div>
+        <div class="decision-title">One row, two content modes</div>
+        <div class="decision-body">Personalization row is narrative (states 2–6, 10), icon-only (state 7), or property-derived (states 1, 8). Never combined.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-num">D3 · Explainability</div>
+        <div class="decision-title">"Why" caption always visible</div>
+        <div class="decision-body">Every personalized signal carries a small explainer underneath. No hover-to-reveal.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-num">D4 · Inventory removal</div>
+        <div class="decision-title">Time on Zillow demoted</div>
+        <div class="decision-body">Removed as a media-zone badge. Where relevant, surfaces in the Personalization row's freshness slot (e.g., state 1: "18 days on market").</div>
+      </div>
+      <div class="decision is-focal">
+        <div class="decision-num">D5 · Quality gates</div>
+        <div class="decision-title">Presence · Reliability · Specificity · Freshness</div>
+        <div class="decision-body">Every signal must clear all four gates to qualify for the row. If a signal fails any gate, it falls through to the next in the priority chain.<div class="gates"><span class="gate">Presence</span><span class="gate">Reliability</span><span class="gate">Specificity</span><span class="gate">Freshness</span></div></div>
+      </div>
+      <div class="decision">
+        <div class="decision-num">D6 · No competition</div>
+        <div class="decision-title">One item per zone</div>
+        <div class="decision-body">Zone 3 hosts Showcase OR BuyAbility, never both. Zone 4 hosts a single signal — even when several would qualify, the priority chain picks one.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-num">D7 · Tone</div>
+        <div class="decision-title">Factual, numeric, never flowery</div>
+        <div class="decision-body">"Stays under your $2,000 budget" not "perfect for you." "22 min drive" not "easy commute." Numbers do the persuading.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-num">D8 · Premium expression</div>
+        <div class="decision-title">Showcase + BuyAbility share zone 3</div>
+        <div class="decision-body">Both occupy the same slot but use distinct treatments — Showcase = listing-paid elevation (dark/gold), BuyAbility = fit-derived (Blue600 mark + meter). Never coexist.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-num">D9 · Voyager handoff</div>
+        <div class="decision-title">Active-aware adds, doesn't replace</div>
+        <div class="decision-body">Voyager-landing layers a Purple500 eyebrow + left rail on top of standard personalization. Anatomy unchanged. Still one signal per zone.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-num">D10 · Cross-LOB</div>
+        <div class="decision-title">Same anatomy, swapped content</div>
+        <div class="decision-body">For Sale uses the same 4-zone structure. BuyAbility lives in zone 3 (FS). Lease/Eligibility (FR) maps to pre-approval/financing (FS). Inline comments in source mark divergence points.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-num">D11 · Mobile-first</div>
+        <div class="decision-title">~375px reference width</div>
+        <div class="decision-body">All density and truncation tuned for mobile. Wider viewports inherit the same card; only spacing scales.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-num">D12 · ZxD adherence</div>
+        <div class="decision-title">Object Sans Heavy headings · 12px radius · soft elevation</div>
+        <div class="decision-body">Brand blue is reserved for action. Surfaces stay white over a neutral page. Showcase is the only dark moment. Pills are fully rounded. No light-colored backgrounds anywhere.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-num">D13 · Price collocation</div>
+        <div class="decision-title">All price-related signals live with the price</div>
+        <div class="decision-body">Previous rent renders inline with current rent as a strike-through (Airbnb pattern). Frees the Personalization row from carrying price-cut as a freshness signal. Future hook for "1 month free" / concession chips in the same row.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
